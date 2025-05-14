@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import Grid from "../../components/Grid";
+import Grid from "../../components/grid";
 import "./styles/ViewAllPage.css";
 // import NetflixWallpaper from "../../assets/netflix.jpg";
 
