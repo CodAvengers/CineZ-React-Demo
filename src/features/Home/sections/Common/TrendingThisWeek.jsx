@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Grid from "../../../../components/Grid";
+import Grid from "../../../../components/grid";
 
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
