@@ -27,7 +27,7 @@
 }
 
 .banner-content {
-  position: absolute;
+  position: absolute; 
   bottom: 5%;
   left: 7%;
   color: white;
@@ -70,6 +70,22 @@
 .banner_play_button:hover {
   background-color: #f40612;
 }
+
+@media (max-width: 435px) {
+  .Banner_Title {
+    font-size: 1.2rem;
+  }
+
+  .banner-content p {
+    font-size: 0.85rem;
+  }
+
+  .banner_play_button {
+    font-size: 0.9rem;
+    padding: 8px 16px;
+  }
+}
+
 
 @keyframes fadeIn {
   from {

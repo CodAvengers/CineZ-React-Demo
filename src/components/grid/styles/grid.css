@@ -239,14 +239,29 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 480px) { 
   .movies-grid {
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
     gap: 15px;
   }
 
   .movie-title {
     font-size: 14px;
+  }
+}
+
+@media (max-width: 435px) {
+  .movie-title {
+    font-size: 11px;
+  }
+
+  .view-all-container{
+    max-width: 30%;
+  }
+
+  .view-all-button {
+    font-size: 0.8rem;
+    padding: 8px 16px;
   }
 }
 

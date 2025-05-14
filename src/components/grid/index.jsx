@@ -19,7 +19,7 @@ const Grid = ({
   const getRatingClass = (voteAverage) => {
     if (voteAverage >= 8) return "high";
     if (voteAverage >= 5) return "medium";
-    return "low";
+    return "low"; 
   };
 
   // Handle missing or null poster paths
