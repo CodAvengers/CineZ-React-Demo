@@ -1,0 +1,11 @@
+.search-page{
+  padding: 2rem;
+  max-width: 1600px;
+  margin: 0 auto;
+  margin-top: 40px;
+}
+
+.search-page-title{
+  font-size: large;
+  color: white;
+}

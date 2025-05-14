@@ -1,0 +1,354 @@
+/* Base colors (customize these as per your theme) */
+:root {
+  --first-color: #ff0000;
+  --first-color-alt: #e04343;
+  --title-color: #ffffff;
+  --text-color: #ffffff;
+  --body-color: rgb(20, 20, 20);
+  --container-color: rgb(20, 20, 20);
+  --z-fixed: 100;
+}
+
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", sans-serif;
+  background-color: var(--body-color);
+}
+
+ul {
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Header */
+.header {
+  width: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgb(20, 20, 20),
+    rgba(20, 20, 20, 0.755),
+    transparent
+  );
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: var(--z-fixed);
+  /* box-shadow: 0 2px 4px rgba(0,0,0,0.1); */
+  max-width: 1920px;
+}
+
+/* Navbar */
+.nav {
+  height: 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1.5rem;
+  max-width: 1600px;
+  margin: auto;
+}
+
+.nav__logo {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--first-color);
+}
+
+.nav__menu {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 250px;
+  height: 100vh;
+  background-color: var(--container-color);
+  box-shadow: -2px 0 6px rgba(255, 255, 255, 0.445);
+  padding: 5rem 2rem;
+  transition: 0.3s;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.nav__list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.nav__link {
+  font-size: 1rem;
+  color: var(--text-color);
+  transition: color 0.3s;
+}
+
+.nav__link:hover {
+  color: var(--first-color);
+}
+
+/* Active nav link */
+.nav__link.active {
+  color: var(--first-color);
+  font-weight: bold;
+}
+
+
+.show-menu {
+  right: 0;
+}
+
+/* Actions */
+.nav__actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nav__toggle,
+.nav__close,
+.nav__search,
+.nav__login {
+  font-size: 1.25rem;
+  cursor: pointer;
+  color: var(--title-color);
+}
+
+/* Search Modal */
+.search {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(
+    32,
+    32,
+    32,
+    0.6
+  ); /* reduced opacity for better blur visibility */
+  backdrop-filter: blur(10px); /* applies blur to background */
+  -webkit-backdrop-filter: blur(10px); /* for Safari support */
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: var(--z-fixed);
+}
+
+.show-search {
+  display: flex;
+}
+
+.search__form {
+  background-color: rgb(20, 20, 20);
+  box-shadow: #ddd 0px 0px 10px 1px;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  color: #f1e6e6;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 90%;
+  max-width: 400px;
+}
+
+.search__input {
+  flex: 1;
+  padding: 0.5rem;
+  border: none;
+  font-size: 1rem;
+}
+
+.search__icon,
+.search__close {
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+/* Login Modal */
+.login {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: var(--z-fixed);
+}
+
+.show-login {
+  display: flex;
+}
+
+.login__form {
+  background-color: var(--container-color);
+  padding: 2rem;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+  position: relative;
+}
+
+.login__title {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--title-color);
+}
+
+.login__group {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.login__label {
+  font-size: 0.875rem;
+  color: var(--text-color);
+  margin-bottom: 0.25rem;
+  display: block;
+}
+
+.login__input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.login__signup,
+.login__forgot {
+  font-size: 0.875rem;
+  color: var(--text-color);
+  margin-bottom: 1rem;
+}
+
+.login__signup a,
+.login__forgot {
+  color: var(--first-color);
+}
+
+.login__button {
+  background-color: var(--first-color);
+  color: white;
+  border: none;
+  padding: 0.75rem;
+  width: 100%;
+  font-size: 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.login__close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+/* Responsive */
+@media screen and (min-width: 768px) {
+  .nav__menu {
+    position: static;
+    height: auto;
+    width: auto;
+    background-color: transparent;
+    box-shadow: none;
+    flex-direction: row;
+    gap: 2rem;
+    padding: 0;
+  }
+
+  .nav__list {
+    flex-direction: row;
+  }
+
+  .nav__toggle,
+  .nav__close {
+    display: none;
+  }
+}
+
+/* Search dropdown */
+.search-results-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--body-color);
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.search-result-item {
+  display: block;
+  padding: 12px 16px;
+  color: var(--text-color);
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.search-result-item:hover {
+  background-color: var(--container-color);
+}
+
+/* Search page */
+.search-page {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.search-title {
+  margin-bottom: 2rem;
+  color: var(--title-color);
+}
+
+.no-results {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-color);
+}
+
+/* Pagination */
+/* .pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.pagination button {
+  padding: 0.5rem 1rem;
+  background-color: var(--first-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination span {
+  color: var(--text-color);
+} */

@@ -1,0 +1,194 @@
+.genres-container {
+  max-width: 1600px;
+  margin: 1rem auto;
+  /* padding: 0px 20px 20px 20px; */
+  /* border: 1px solid #333; */
+  /* border-radius: 8px; */
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  margin-top: 0px;
+}
+
+.section-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.genres-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.genre-card {
+  background: #1a1a1a;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #333;
+  transition: transform 0.2s;
+  aspect-ratio: 1/1; /* Perfect square */
+}
+
+.genre-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(95, 95, 95, 0.348);
+}
+
+.genre-collage {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  height: 70%;
+  gap: 2px;
+  padding: 8px;
+  position: relative;
+  background: linear-gradient(to right, rgba(78, 1, 1, 0) 0%, rgba(26, 26, 26, 1) 100%); 
+}
+
+.genre-collage::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to top, rgba(26, 26, 26, 1) 0%, rgba(26, 26, 26, 0.445) 100%);
+    pointer-events: none; 
+  }
+
+.collage-img {
+  background-size: cover;
+  background-position: center;
+}
+
+.collage-img-1 {
+  border-radius: 8px 0 0 0;
+}
+.collage-img-2 {
+  border-radius: 0 8px 0 0;
+}
+.collage-img-3 {
+  border-radius: 0 0 0 8px;
+}
+.collage-img-4 {
+  border-radius: 0 0 8px 0;
+}
+
+.genre-info {
+  padding: 30px;
+  text-align: center;
+  height: 30%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.genre-info h3 {
+  color: white;
+  margin-bottom: 30px;
+  margin-left: 10px;
+  font-size: 1.1rem;
+}
+
+.genre-title-row{
+    margin-top: 0;
+}
+
+.genre-button {
+  width: 100%;
+  padding: 6px 0;
+  margin-top: 8px;
+}
+
+/* Pagination Styles */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.pagination-button {
+  display: grid;
+  place-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #333;
+  border-radius: 4px;
+  background: transparent;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pagination-button:hover:not(:disabled) {
+  background: #333;
+}
+
+.pagination-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-button.active {
+  background: #e55300;
+  border-color: #e55300;
+  color: white;
+}
+
+.pagination-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.prev-next {
+  background: #1a1a1a;
+}
+
+/* Add to your existing genre-grid.css */
+.genre-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0 8px;
+}
+
+.genre-arrow-button {
+  background: transparent;
+  border: none;
+  color: #e55300;
+  cursor: pointer;
+  padding: 4px;
+  margin-right: 15px;
+  margin-bottom: 30px;
+  transition: transform 0.2s;
+}
+
+.genre-arrow-button:hover {
+  transform: translateX(2px);
+  color: #ff6a00;
+}
+
+.genre-arrow-button svg {
+  font-size: 1.2rem;
+}
+
+/* Adjust genre info padding */
+.genre-info {
+  padding: 12px 0; /* Reduced side padding */
+  height: 30%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}

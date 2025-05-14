@@ -1,0 +1,73 @@
+/* Base button styles */
+.button {
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: 500;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px; 
+  }
+  
+  /* Primary variant (e.g., main action button) */
+  .button--primary {
+    background-color: #E50000;
+    color: white;
+  }
+  
+  .button--primary:hover:not(:disabled) {
+    background-color: #333;
+    border: 1px solid #333;
+    transform: scale(1.05);
+  }
+  
+  /* Secondary variant (e.g., cancel or less prominent action) */
+  .button--secondary {
+    background-color: #6c757d;
+    color: white;
+  }
+  
+  .button--secondary:hover:not(:disabled) {
+    background-color: #5a6268;
+    transform: scale(1.05);
+  }
+  
+  /* Danger variant (e.g., delete or remove action) */
+  .button--danger {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  .button--danger:hover:not(:disabled) {
+    background-color: #b02a37;
+    transform: scale(1.05);
+  }
+  
+  /* Disabled state */
+  .button:disabled {
+    background-color: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* View More specific styles */
+.button--view-more {
+  background-color: #E55300;
+  color: white;
+  border: none;
+  width: max-content;
+}
+
+.button--view-more:hover {
+  background-color: #ff6a00;
+  border: #5a6268 1px solid;
+}
+
+.button--view-more:disabled {
+  background-color: #cccccc;
+}
