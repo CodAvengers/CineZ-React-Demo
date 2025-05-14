@@ -15,7 +15,7 @@
   height: 100%;
   object-fit: cover;
   object-position: top;
-} 
+}
 
 .banner-overlay {
   position: absolute;
@@ -27,7 +27,7 @@
 }
 
 .banner-content {
-  position: absolute; 
+  position: absolute;
   bottom: 5%;
   left: 7%;
   color: white;
@@ -36,8 +36,8 @@
 }
 
 .Banner_Title {
-  font-family: 'Roboto', sans-serif;
-   font-weight: 800; /* or use bolder or a specific value like 900 */
+  font-family: "Roboto", sans-serif;
+  font-weight: 800; /* or use bolder or a specific value like 900 */
   font-size: 4rem;
   margin-bottom: 0.1rem;
 }
@@ -59,7 +59,7 @@
   background-color: #e55300;
   border: none;
   color: white;
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
   font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
@@ -71,21 +71,23 @@
   background-color: #f40612;
 }
 
-@media (max-width: 435px) {
+@media (max-width: 500px) {
   .Banner_Title {
     font-size: 1.2rem;
   }
 
   .banner-content p {
-    font-size: 0.85rem;
+    font-size: 0.74rem;
   }
 
   .banner_play_button {
     font-size: 0.9rem;
     padding: 8px 16px;
   }
+  .banner-content {
+    margin-left: 50px;
+  }
 }
-
 
 @keyframes fadeIn {
   from {
@@ -102,8 +104,9 @@
   position: absolute;
   top: 75%;
   transform: translateY(-50%);
-  background: rgba(0, 0, 0, 0.4);
-  border: none;
+  background: rgba(35, 35, 35, 0.4);
+  border: 1px solid #333;
+  border-radius: 4px;
   font-size: 2rem;
   color: white;
   padding: 0.5rem 1rem;
@@ -113,7 +116,7 @@
 }
 
 .banner-nav-button:hover {
-  background: rgba(0, 0, 0, 0.6);
+  background: #333;
 }
 
 .banner-nav-button.left {

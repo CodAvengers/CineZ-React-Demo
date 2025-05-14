@@ -18,7 +18,7 @@ const GenreGrid = ({ type = "movie" }) => {
         { id: 28, name: "Action" },
         { id: 12, name: "Adventure" },
         { id: 35, name: "Comedy" },
-        { id: 878, name: "Science Fiction" },
+        { id: 878, name: "Sci-Fi" },
         { id: 27, name: "Horror" },
         { id: 16, name: "Animation" },
         { id: 9648, name: "Mystery" },
@@ -54,7 +54,7 @@ const GenreGrid = ({ type = "movie" }) => {
   // Get the correct genres based on type
   const filteredGenres = useMemo(() => genreData[type], [type, genreData]);
 
-  const genresPerPage = 7;
+  const genresPerPage = 9;
   const totalPages = Math.ceil(filteredGenres.length / genresPerPage);
   const currentGenres = filteredGenres.slice(
     (currentPage - 1) * genresPerPage,

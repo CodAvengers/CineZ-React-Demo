@@ -251,6 +251,9 @@
 }
 
 @media (max-width: 435px) {
+  .movies-container {
+    padding: 0px 7px 7px 7px;
+  }
   .movie-title {
     font-size: 11px;
   }
@@ -297,17 +300,17 @@
 
 /* Optional: Add star color variations based on rating */
 .movie-rating.high {
-  background: #f44336;
-  color: white;
+  background: #FCC201;
+  color: rgb(0, 0, 0);
 }
 
 .movie-rating.medium {
-  background: #ffc107;
-  color: #000;
+  background: #333;
+  color: #ffffff;
 }
 
 .movie-rating.low {
-  background: #141414;
+  background: #f44336;
   color: white;
 }
 

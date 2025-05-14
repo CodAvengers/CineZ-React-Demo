@@ -24,7 +24,7 @@ const MovieDetails = () => {
 
         if (!tmdbResponse.ok) throw new Error("TMDB data not found");
 
-        const tmdbData = await tmdbResponse.json();
+        const tmdbData = await tmdbResponse.json(); 
 
         setMovie({
           title: tmdbData.title,

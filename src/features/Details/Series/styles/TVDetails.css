@@ -95,6 +95,35 @@
   border: 1px solid #f5c518;
 }
 
+.series-player iframe {
+  width: 100%;
+  height: 500px;
+  border: none;
+  border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+  .series-player iframe {
+    height: 300px;
+  }
+
+  .season-selector {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .season-selector select {
+    margin-left: 0;
+    margin-top: 5px;
+  }
+}
+
+@media (max-width: 430px) {
+  .episode-selector{
+    flex-direction: column;
+  }
+}
+
 .director {
   margin-bottom: 1.5rem;
   font-size: 1.1rem;

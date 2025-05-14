@@ -8,10 +8,12 @@ import SearchPage from "./pages/SearchPage";
 import NotFound from "./pages/NotFound/NotFound";
 import MoviesPage from "./pages/MoviesPage";
 import TvPage from "./pages/TvPage";
+import ScrollToTop from "./features/ScrollToTop";
 
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<HomePage />} />

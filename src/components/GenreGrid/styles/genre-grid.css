@@ -96,6 +96,18 @@
   font-size: 1.1rem;
 }
 
+@media (max-width: 435px) {
+  .genres-container {
+    padding: 0px 10px 10px 10px;
+  }
+  .section-title {
+    font-size: 1.3rem;
+  }
+  .genre-info h3 {
+    font-size: 0.95rem;
+  }
+}
+
 .genre-title-row{
     margin-top: 0;
 }

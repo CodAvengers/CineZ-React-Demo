@@ -13,16 +13,19 @@
   justify-content: space-between;
   padding-left: 1.5rem;
   padding-right: 1.5rem;
+  gap: 1.5rem;
 }
 
 .footer-section {
   width: 20%;
+  min-width: 150px;
   margin-bottom: 1rem;
   color: white;
 }
 
 .footer-section h4 {
   margin-bottom: 0.5rem;
+  font-size: 1rem;
 }
 
 .footer-section ul {
@@ -38,6 +41,7 @@
 .footer-section a {
   color: #d1d5db; /* Tailwind's text-gray-300 */
   text-decoration: none;
+  font-size: 0.875rem;
 }
 
 .footer-section a:hover {
@@ -46,6 +50,8 @@
 
 .footer-social {
   text-align: center;
+  width: 100%;
+  margin-top: 1rem;
 }
 
 .footer-social ul {
@@ -54,6 +60,7 @@
   justify-content: center;
   gap: 1rem;
   padding-left: 0;
+  flex-wrap: wrap;
 }
 
 .footer-social a {
@@ -75,6 +82,8 @@
   border-radius: 0.5rem;
   padding-left: 1.5rem;
   padding-right: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .footer-bottom p,
@@ -82,8 +91,53 @@
 .footer-bottom span {
   font-size: 0.875rem;
   color: #d1d5db;
+  text-align: center;
 }
 
 .footer-bottom a:hover {
   text-decoration: underline;
+}
+
+/* 🔽 Responsive adjustments for screens under 768px */
+@media (max-width: 768px) {
+  .footer-wrapper {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .footer-section {
+    width: 100%;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+/* 🔽 Additional tuning for extra small devices (under 435px) */
+@media (max-width: 435px) {
+  .footer-section h4 {
+    font-size: 0.9rem;
+  }
+
+  .footer-section a {
+    font-size: 0.8rem;
+  }
+
+  .footer-social a {
+    font-size: 1rem;
+  }
+
+  .footer-bottom {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .footer-bottom p,
+  .footer-bottom a,
+  .footer-bottom span {
+    font-size: 0.75rem;
+  }
 }
