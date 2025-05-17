@@ -122,7 +122,7 @@ const GenreGrid = ({ type = "movie" }) => {
               <button
                 onClick={() => paginate(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="pagination-button prev-next" 
+                className="pagination-button prev-next"
                 aria-label="Previous page"
               >
                 <svg
@@ -208,7 +208,17 @@ const GenreGrid = ({ type = "movie" }) => {
               </div>
               <div className="genre-info">
                 <div className="genre-title-row">
-                  <h3>{genre.name}</h3>
+                  <h3
+                    onClick={() => {
+                      if (window.innerWidth <= 1366) {
+                        handleGenreClick(genre.id, genre.name);
+                      }
+                    }}
+                    style={{ cursor: "pointer" }}
+                    aria-label={`View ${genre.name} ${type}s`}
+                  >
+                    {genre.name}
+                  </h3>
                   <button
                     className="genre-arrow-button"
                     onClick={() => handleGenreClick(genre.id, genre.name)}

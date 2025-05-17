@@ -4,6 +4,12 @@
   margin-top: 80px;
 }
 
+@media (max-width: 1366px) {
+  .view-all-wrapper {
+    padding: 0 40px;
+  }
+}
+
 .pagination-view-all {
   display: flex;
   justify-content: flex-end;

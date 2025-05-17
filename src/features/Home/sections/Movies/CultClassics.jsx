@@ -36,7 +36,7 @@ const CultClassics = () => {
   return (
     <div className="section-container">
       <Grid
-        title="Cult Classics (Pre-2000)"
+        title="Cult Classics"
         data={movies}
         loading={loading}
         onItemClick={handleClick}

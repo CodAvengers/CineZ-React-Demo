@@ -58,6 +58,13 @@ a {
   margin: auto;
 }
 
+@media (max-width: 1366px) {
+  .nav {
+    padding: 0 80px;
+  }
+}
+
+
 .nav__logo {
   font-size: 1.25rem;
   font-weight: 700;

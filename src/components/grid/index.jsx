@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import "./styles/grid.css";
 import StarHalfIcon from "@mui/icons-material/StarHalf";
 import Loader from "../Loader/Loader";
@@ -14,26 +14,25 @@ const Grid = ({
   title = "Section Title",
   showViewAll = true,
   showPagination = true,
-  mediaType = "movie", // Add mediaType prop with default value
+  mediaType = "movie",
 }) => {
-  const getRatingClass = (voteAverage) => {
+  const navigate = useNavigate();
+
+  // Memoized functions for better performance
+  const getRatingClass = useCallback((voteAverage) => {
     if (voteAverage >= 8) return "high";
     if (voteAverage >= 5) return "medium";
-    return "low"; 
-  };
+    return "low";
+  }, []);
 
-  // Handle missing or null poster paths
-  const getPosterUrl = (posterPath) => {
+  const getPosterUrl = useCallback((posterPath) => {
     if (!posterPath) return null;
     return posterPath.includes("https://")
       ? posterPath
       : `https://image.tmdb.org/t/p/w500${posterPath}`;
-  };
+  }, []);
 
-  const navigate = useNavigate();
-
-  const handleViewAll = () => {
-    // Special handling for streaming platforms
+  const handleViewAll = useCallback(() => {
     if (title.includes("Netflix Originals")) {
       navigate(`/view-all/netflix-originals-${mediaType}`);
     } else if (title.includes("Amazon Originals")) {
@@ -44,20 +43,70 @@ const Grid = ({
       navigate(`/view-all/disney-originals-${mediaType}`);
     } else if (title.includes("Apple Originals")) {
       navigate(`/view-all/apple-originals-${mediaType}`);
-    }
-    // Handle other sections normally
-    else {
+    } else {
       const formattedTitle = title.toLowerCase().replace(/\s+/g, "-");
       navigate(`/view-all/${formattedTitle}`);
     }
-  };
+  }, [title, mediaType, navigate]);
+
+  const handleItemClick = useCallback((item) => {
+    onItemClick(item);
+  }, [onItemClick]);
+
+  const handleImageError = useCallback((e) => {
+    const parent = e.target.parentNode;
+    if (!parent) return;
+    
+    const titleText = e.target.alt || "NA";
+    const placeholder = document.createElement("div");
+    placeholder.className = "poster-placeholder";
+    placeholder.textContent = titleText.substring(0, 2).toUpperCase();
+    
+    parent.innerHTML = "";
+    parent.appendChild(placeholder);
+  }, []);
+
+  // Memoized movie card component to prevent unnecessary re-renders
+  const MovieCard = useCallback(({ item }) => (
+    <div className="movie-card" onClick={() => handleItemClick(item)}>
+      <div className="movie-poster">
+        {getPosterUrl(item.poster_path) ? (
+          <img
+            src={getPosterUrl(item.poster_path)}
+            alt={item.title || item.name || "Movie poster"}
+            onError={handleImageError}
+            loading="lazy"
+          />
+        ) : (
+          <div className="poster-placeholder">
+            {(item.title || item.name || "NA").substring(0, 2).toUpperCase()}
+          </div>
+        )}
+      </div>
+      <div className="movie-info">
+        <div className="movie-title">{item.title || item.name}</div>
+        <div className="movie-meta">
+          {item.vote_average > 0 && (
+            <span className={`movie-rating ${getRatingClass(item.vote_average)}`}>
+              <StarHalfIcon style={{ fontSize: "14px" }} />
+              {item.vote_average.toFixed(1)}/10
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  ), [getPosterUrl, getRatingClass, handleImageError, handleItemClick]);
 
   return (
     <div className="movies-container">
       <div className="section-header">
         {showViewAll && (
           <div className="view-all-container">
-            <button className="view-all-button" title="View All" onClick={handleViewAll}> 
+            <button 
+              className="view-all-button" 
+              title="View All" 
+              onClick={handleViewAll}
+            >
               {title}
             </button>
           </div>
@@ -106,7 +155,7 @@ const Grid = ({
             <li>
               <button
                 onClick={() => onPageChange(currentPage + 1)}
-                disabled={currentPage === 4}
+                disabled={currentPage === totalPages}
                 className="pagination-button prev-next"
                 aria-label="Next page"
               >
@@ -133,49 +182,7 @@ const Grid = ({
           <Loader />
         ) : (
           data.map((item) => (
-            <div
-              key={item.id}
-              className="movie-card"
-              onClick={() => onItemClick(item)}
-            >
-              <div className="movie-poster">
-                {getPosterUrl(item.poster_path) ? (
-                  <img
-                    src={getPosterUrl(item.poster_path)}
-                    alt={item.title}
-                    onError={(e) => {
-                      e.target.src = "";
-                      e.target.alt = "Poster not available";
-                      e.target.parentNode.innerHTML = `
-                        <div class="poster-placeholder">
-                          ${item.title?.substring(0, 2).toUpperCase() || "NA"}
-                        </div>
-                      `;
-                    }}
-                  />
-                ) : (
-                  <div className="poster-placeholder">
-                    {item.title?.substring(0, 2).toUpperCase() || "NA"}
-                  </div>
-                )}
-              </div>
-
-              <div className="movie-info">
-                <div className="movie-title">{item.title || item.name}</div>
-                <div className="movie-meta">
-                  {item.vote_average > 0 && (
-                    <span
-                      className={`movie-rating ${getRatingClass(
-                        item.vote_average
-                      )}`}
-                    >
-                      <StarHalfIcon style={{ fontSize: "14px" }} />
-                      {item.vote_average.toFixed(1)}/10
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
+            <MovieCard key={item.id} item={item} />
           ))
         )}
       </div>
@@ -183,4 +190,4 @@ const Grid = ({
   );
 };
 
-export default Grid;
+export default React.memo(Grid);

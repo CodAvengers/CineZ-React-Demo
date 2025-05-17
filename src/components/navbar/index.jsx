@@ -103,7 +103,7 @@ const Navbar = () => {
                 className="nav__link"
                 onClick={() => setShowMenu(false)}
               >
-                TV Shows
+                Series
               </NavLink>
             </li>
 

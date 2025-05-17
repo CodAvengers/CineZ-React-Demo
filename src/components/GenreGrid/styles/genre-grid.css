@@ -35,6 +35,25 @@
   aspect-ratio: 1/1; /* Perfect square */
 }
 
+@media (max-width: 1366px) {
+
+  .genres-container {
+    padding: 0px 80px 40px 80px;
+    margin-bottom: 0px;
+  }
+  .genres-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap:12px;
+  }
+  .genre-card {
+    max-width: 100px;
+    max-height: fit-content;
+  }
+  /* .section-title {
+    font-size: 20px;
+  } */
+}
+
 .genre-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 5px 15px rgba(95, 95, 95, 0.348);
@@ -48,19 +67,27 @@
   gap: 2px;
   padding: 8px;
   position: relative;
-  background: linear-gradient(to right, rgba(78, 1, 1, 0) 0%, rgba(26, 26, 26, 1) 100%); 
+  background: linear-gradient(
+    to right,
+    rgba(78, 1, 1, 0) 0%,
+    rgba(26, 26, 26, 1) 100%
+  );
 }
 
 .genre-collage::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(to top, rgba(26, 26, 26, 1) 0%, rgba(26, 26, 26, 0.445) 100%);
-    pointer-events: none; 
-  }
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to top,
+    rgba(26, 26, 26, 1) 0%,
+    rgba(26, 26, 26, 0.445) 100%
+  );
+  pointer-events: none;
+}
 
 .collage-img {
   background-size: cover;
@@ -96,26 +123,100 @@
   font-size: 1.1rem;
 }
 
+.genre-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0 8px;
+}
+
+.genre-arrow-button {
+  background: transparent;
+  border: none;
+  color: #e55300;
+  cursor: pointer;
+  padding: 4px;
+  margin-right: 15px;
+  margin-bottom: 30px;
+  transition: transform 0.2s;
+}
+
+.genre-arrow-button:hover {
+  transform: translateX(2px);
+  color: #ff6a00;
+}
+
+.genre-arrow-button svg {
+  font-size: 1.2rem;
+}
+
+/* Adjust genre info padding */
+.genre-info {
+  padding: 12px 0; /* Reduced side padding */
+  height: 30%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+@media (max-width: 1366px) {
+  .genre-title-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 0;
+    padding: 0px;
+  }
+
+  .genre-info h3 {
+    margin-top: 105px;
+    margin-left: 1px;
+    font-size: 1rem;
+  }
+
+  .genre-info h3:hover {
+    transform: translateX(2px);
+    color: #ff6a00;
+  }
+}
+
 @media (max-width: 435px) {
+  .genres-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 16px;
+  }
+  .genre-title-row {
+    display: flex;
+    flex-direction: column;
+  }
   .genres-container {
-    padding: 0px 10px 10px 10px;
+    padding: 0px 10px 10px 16px;
   }
   .section-title {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
   }
   .genre-info h3 {
     font-size: 0.95rem;
   }
 }
 
-.genre-title-row{
-    margin-top: 0;
+.genre-title-row {
+  margin-top: 0;
 }
 
 .genre-button {
   width: 100%;
   padding: 6px 0;
   margin-top: 8px;
+}
+
+@media (max-width: 1366px) {
+  .genre-arrow-button {
+    width: 50%;
+    padding: 6px 0;
+    margin-top: 18px;
+  }
 }
 
 /* Pagination Styles */
@@ -167,7 +268,6 @@
   background: #1a1a1a;
 }
 
-/* Add to your existing genre-grid.css */
 .genre-title-row {
   display: flex;
   justify-content: space-between;

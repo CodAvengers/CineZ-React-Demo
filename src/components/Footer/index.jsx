@@ -1,64 +1,93 @@
-import React from 'react';
-import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn } from 'react-icons/fa';
-import './styles/footer.css';
+import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
-const Footer = () => {
-    return (
-        <footer className="footer-container">
-            <div className="footer-wrapper">
-                <div className="footer-section">
-                    <h4>Home</h4>
-                    <ul>
-                        <li><a href="#">Categories</a></li>
-                    </ul>
-                </div>
-                <div className="footer-section">
-                    <h4>Movies</h4>
-                    <ul>
-                        <li><a href="#">Genres</a></li>
-                        <li><a href="#">Trending</a></li>
-                        <li><a href="#">New Release</a></li>
-                        <li><a href="#">Popular</a></li>
-                    </ul>
-                </div>
-                <div className="footer-section">
-                    <h4>Shows</h4>
-                    <ul>
-                        <li><a href="#">Genres</a></li>
-                        <li><a href="#">Trending</a></li>
-                        <li><a href="#">New Release</a></li>
-                        <li><a href="#">Popular</a></li>
-                    </ul>
-                </div>
-                <div className="footer-section">
-                    <h4>Support</h4>
-                    <ul>
-                        <li><a href="#">Contact Us</a></li>
-                    </ul>
-                </div>
-                <div className="footer-section footer-social">
-                    <h4>Connect With Us</h4>
-                    <ul>
-                        <li><a href="#"><FaFacebookF /></a></li>
-                        <li><a href="#"><FaTwitter /></a></li>
-                        <li><a href="#"><FaInstagram /></a></li>
-                        <li><a href="#"><FaLinkedinIn /></a></li>
-                    </ul>
-                </div>
+import "./styles/footer.css";
+
+export default function AppFooter() {
+  const navigate = useNavigate();
+
+  return (
+    <footer className="app-footer">
+      <div className="footer-container">
+        <div className="footer-top">
+          <div className="footer-brand">
+            <Link to="/" className="footer-logo">
+              <img src="../../CineZ.svg" alt="CineZ Logo" />
+            </Link>
+          </div>
+          <div className="footer-links">
+            <div className="footer-section">
+              <h4>Links</h4>
+              <ul>
+                <li>
+                  <NavLink
+                    to="/movies"
+                    className="nav__link"
+                    onClick={() => setShowMenu(false)}
+                  >
+                    Movies
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
+                    to="/tv-shows"
+                    className="nav__link"
+                    onClick={() => setShowMenu(false)}
+                  >
+                    Series
+                  </NavLink>
+                </li>
+              </ul>
             </div>
-
-            <div className="footer-bottom">
-                <p>© 2025 CineZ. All rights reserved.</p>
-                <div>
-                    <a href="#">Terms of Use</a>
-                    <span> | </span>
-                    <a href="#">Privacy Policy</a>
-                    <span> | </span>
-                    <a href="#">Cookie Policy</a>
-                </div>
+            <div className="footer-section">
+              <h4>Follow Us</h4>
+              <ul>
+                <li>
+                  <a href="https://github.com/bravvjr">GitHub</a>
+                </li>
+                <li>
+                  <a href="https://www.behance.net/bravvjr">Behance</a>
+                </li>
+              </ul>
             </div>
-        </footer>
-    );
-};
-
-export default Footer;
+            {/* <div className="footer-section">
+              <h4>Legal</h4>
+              <ul>
+                <li>
+                  <a href="#">Privacy Policy</a>
+                </li>
+                <li>
+                  <a href="#">Terms & Conditions</a>
+                </li>
+              </ul>
+            </div> */}
+          </div>
+        </div>
+        <hr />
+        <div className="footer-bottom">
+          <p>
+            © 2025 <a href="#">CineZ</a>. All Rights Reserved.
+          </p>
+          <div className="footer-socials">
+            <a href="#">
+              <i className="fab fa-facebook-f"></i>
+            </a>
+            <a href="#">
+              <i className="fab fa-instagram"></i>
+            </a>
+            <a href="#">
+              <i className="fab fa-twitter"></i>
+            </a>
+            <a href="#">
+              <i className="fab fa-github"></i>
+            </a>
+            <a href="#">
+              <i className="fab fa-dribbble"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}

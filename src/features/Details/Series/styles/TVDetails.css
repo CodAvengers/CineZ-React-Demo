@@ -5,6 +5,12 @@
   margin-top: 40px;
 }
 
+/* @media (max-width: 1366px) {
+  .tv-details-container {
+    margin: 40px 140px 0px 140px;
+  }
+} */
+
 .backdrop-image {
   position: fixed;
   top: 0;
