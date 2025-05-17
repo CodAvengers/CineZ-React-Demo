@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import "./styles/grid.css";
 import StarHalfIcon from "@mui/icons-material/StarHalf";
 import Loader from "../Loader/Loader";
@@ -25,12 +25,30 @@ const Grid = ({
     return "low";
   }, []);
 
-  const getPosterUrl = useCallback((posterPath) => {
-    if (!posterPath) return null;
-    return posterPath.includes("https://")
-      ? posterPath
-      : `https://image.tmdb.org/t/p/w500${posterPath}`;
+  // Improved image URL builder matching TVDetails logic
+  const getImageUrl = useCallback((path, size = "w500") => {
+    if (!path) return null;
+    return `https://image.tmdb.org/t/p/${size}${path}`;
   }, []);
+
+  // Enhanced image fallback system
+  const getBestAvailableImage = useCallback(
+    (item) => {
+      // Try these image types in order of preference
+      const imageTypes = [
+        item.poster_path, // Primary poster
+        item.backdrop_path, // Backdrop image
+        item.still_path, // For episodes
+        item.profile_path, // For cast
+      ];
+
+      for (const path of imageTypes) {
+        if (path) return getImageUrl(path);
+      }
+      return null;
+    },
+    [getImageUrl]
+  );
 
   const handleViewAll = useCallback(() => {
     if (title.includes("Netflix Originals")) {
@@ -49,62 +67,76 @@ const Grid = ({
     }
   }, [title, mediaType, navigate]);
 
-  const handleItemClick = useCallback((item) => {
-    onItemClick(item);
-  }, [onItemClick]);
+  const handleItemClick = useCallback(
+    (item) => {
+      onItemClick(item);
+    },
+    [onItemClick]
+  );
 
-  const handleImageError = useCallback((e) => {
-    const parent = e.target.parentNode;
-    if (!parent) return;
-    
-    const titleText = e.target.alt || "NA";
-    const placeholder = document.createElement("div");
-    placeholder.className = "poster-placeholder";
-    placeholder.textContent = titleText.substring(0, 2).toUpperCase();
-    
-    parent.innerHTML = "";
-    parent.appendChild(placeholder);
-  }, []);
+  const MovieCard = useCallback(
+    ({ item }) => {
+      const [imageError, setImageError] = useState(false);
+      const [currentImage, setCurrentImage] = useState(() =>
+        getBestAvailableImage(item)
+      );
 
-  // Memoized movie card component to prevent unnecessary re-renders
-  const MovieCard = useCallback(({ item }) => (
-    <div className="movie-card" onClick={() => handleItemClick(item)}>
-      <div className="movie-poster">
-        {getPosterUrl(item.poster_path) ? (
-          <img
-            src={getPosterUrl(item.poster_path)}
-            alt={item.title || item.name || "Movie poster"}
-            onError={handleImageError}
-            loading="lazy"
-          />
-        ) : (
-          <div className="poster-placeholder">
-            {(item.title || item.name || "NA").substring(0, 2).toUpperCase()}
+      const handleImageError = useCallback(() => {
+        // Try smaller image size if available
+        if (item.poster_path && !currentImage?.includes("w200")) {
+          setCurrentImage(getImageUrl(item.poster_path, "w200"));
+          setImageError(false);
+        } else {
+          setImageError(true);
+        }
+      }, [item.poster_path, currentImage, getImageUrl]);
+
+      const titleText = item.title || item.name || "NA";
+      const initials = titleText.substring(0, 2).toUpperCase();
+
+      return (
+        <div className="movie-card" onClick={() => handleItemClick(item)}>
+          <div className="movie-poster">
+            {!imageError && currentImage ? (
+              <img
+                src={currentImage}
+                alt={titleText}
+                onError={handleImageError}
+                loading="lazy"
+              />
+            ) : (
+              <div className="poster-placeholder">{initials}</div>
+            )}
           </div>
-        )}
-      </div>
-      <div className="movie-info">
-        <div className="movie-title">{item.title || item.name}</div>
-        <div className="movie-meta">
-          {item.vote_average > 0 && (
-            <span className={`movie-rating ${getRatingClass(item.vote_average)}`}>
-              <StarHalfIcon style={{ fontSize: "14px" }} />
-              {item.vote_average.toFixed(1)}/10
-            </span>
-          )}
+          <div className="movie-info">
+            <div className="movie-title">{titleText}</div>
+            <div className="movie-meta">
+              {item.vote_average > 0 && (
+                <span
+                  className={`movie-rating ${getRatingClass(
+                    item.vote_average
+                  )}`}
+                >
+                  <StarHalfIcon style={{ fontSize: "14px" }} />
+                  {item.vote_average.toFixed(1)}/10
+                </span>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  ), [getPosterUrl, getRatingClass, handleImageError, handleItemClick]);
+      );
+    },
+    [getBestAvailableImage, getRatingClass, handleItemClick]
+  );
 
   return (
     <div className="movies-container">
       <div className="section-header">
         {showViewAll && (
           <div className="view-all-container">
-            <button 
-              className="view-all-button" 
-              title="View All" 
+            <button
+              className="view-all-button"
+              title="View All"
               onClick={handleViewAll}
             >
               {title}
@@ -176,18 +208,14 @@ const Grid = ({
           </ul>
         )}
       </div>
-
       <div className="movies-grid">
         {loading ? (
           <Loader />
         ) : (
-          data.map((item) => (
-            <MovieCard key={item.id} item={item} />
-          ))
+          data.map((item) => <MovieCard key={item.id} item={item} />)
         )}
       </div>
     </div>
   );
 };
-
 export default React.memo(Grid);
