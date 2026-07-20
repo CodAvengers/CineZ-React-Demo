@@ -2,23 +2,35 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./styles/banner.css";
 import { getHomeBanners } from "../../api";
+import { BannerSkeleton } from "../Skeleton";
+import "../Skeleton/styles/skeleton.css";
 
 const BannerHome = () => {
   const [banners, setBanners] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
     const fetchBanners = async () => {
+      setLoading(true);
       try {
         const data = await getHomeBanners({ limit: 10 });
         setBanners(data);
+        setCurrentIndex(0);
       } catch (error) {
         console.error("Failed to load banner data:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchBanners();
   }, []);
+
+  useEffect(() => {
+    setImageLoaded(false);
+  }, [currentIndex, banners]);
 
   useEffect(() => {
     if (banners.length === 0) return undefined;
@@ -38,6 +50,10 @@ const BannerHome = () => {
     setCurrentIndex((prev) => (prev === banners.length - 1 ? 0 : prev + 1));
   };
 
+  if (loading) {
+    return <BannerSkeleton />;
+  }
+
   if (banners.length === 0) return null;
 
   const current = banners[currentIndex];
@@ -46,10 +62,12 @@ const BannerHome = () => {
   return (
     <section className="banner-section">
       <div className="banner-slide">
+        {!imageLoaded && <div className="skeleton skeleton--banner-image" />}
         <img
           src={current.backdropUrl}
           alt={current.title}
-          className="banner-image"
+          className={`banner-image media-fade${imageLoaded ? " is-loaded" : ""}`}
+          onLoad={() => setImageLoaded(true)}
         />
         <div className="banner-overlay" />
 

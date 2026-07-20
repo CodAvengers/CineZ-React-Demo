@@ -90,6 +90,14 @@
 .collage-img {
   background-size: cover;
   background-position: center;
+  position: relative;
+  overflow: hidden;
+  opacity: 0.55;
+  transition: opacity 0.35s ease;
+}
+
+.collage-img.is-loaded {
+  opacity: 1;
 }
 
 .collage-img-1 {

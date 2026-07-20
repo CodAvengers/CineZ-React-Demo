@@ -4,6 +4,50 @@ import "./styles/genre-grid.css";
 import { ArrowForward } from "@mui/icons-material";
 import { getGenrePreviews, MOVIE_GENRES, TV_GENRES } from "../../api";
 import { genreRowMetrics, useFitPerRow } from "../../hooks/useFitPerRow";
+import { GenreRowSkeleton } from "../Skeleton";
+import "../Skeleton/styles/skeleton.css";
+
+function CollageTile({ item, genreName, index }) {
+  const [loaded, setLoaded] = useState(!item.poster);
+
+  useEffect(() => {
+    if (!item.poster) {
+      setLoaded(true);
+      return undefined;
+    }
+
+    setLoaded(false);
+    const img = new Image();
+    img.onload = () => setLoaded(true);
+    img.onerror = () => setLoaded(true);
+    img.src = item.poster;
+    return () => {
+      img.onload = null;
+      img.onerror = null;
+    };
+  }, [item.poster]);
+
+  return (
+    <div
+      className={`collage-img collage-img-${index + 1}${
+        loaded ? " is-loaded" : ""
+      }`}
+      style={{
+        backgroundImage: item.poster
+          ? `url(${item.poster})`
+          : "linear-gradient(to bottom, #333, #555)",
+      }}
+    >
+      {!loaded && <div className="skeleton skeleton--fill" />}
+      {!item.poster && (
+        <div className="poster-placeholder">
+          {item.title.substring(0, 2).toUpperCase() ||
+            genreName.substring(0, 2)}
+        </div>
+      )}
+    </div>
+  );
+}
 
 const GenreGrid = ({ type = "movie" }) => {
   const navigate = useNavigate();
@@ -70,7 +114,7 @@ const GenreGrid = ({ type = "movie" }) => {
             <li>
               <button
                 onClick={() => paginate(currentPage - 1)}
-                disabled={currentPage === 1}
+                disabled={currentPage === 1 || loading}
                 className="pagination-button prev-next"
                 aria-label="Previous page"
               >
@@ -94,6 +138,7 @@ const GenreGrid = ({ type = "movie" }) => {
                 <li key={number}>
                   <button
                     onClick={() => paginate(number)}
+                    disabled={loading}
                     className={`pagination-button ${
                       currentPage === number ? "active" : ""
                     }`}
@@ -107,7 +152,7 @@ const GenreGrid = ({ type = "movie" }) => {
             <li>
               <button
                 onClick={() => paginate(currentPage + 1)}
-                disabled={currentPage === totalPages}
+                disabled={currentPage === totalPages || loading}
                 className="pagination-button prev-next"
                 aria-label="Next page"
               >
@@ -131,7 +176,7 @@ const GenreGrid = ({ type = "movie" }) => {
 
       <div className="genres-grid-measure" ref={gridRef}>
         {loading ? (
-          <div className="loading-genres">Loading genres...</div>
+          <GenreRowSkeleton count={Math.max(genresPerPage, 6)} />
         ) : (
           <div
             className="genres-grid"
@@ -143,22 +188,12 @@ const GenreGrid = ({ type = "movie" }) => {
               <div key={genre.id} className="genre-card">
                 <div className="genre-collage">
                   {genreItems[genre.id]?.map((item, index) => (
-                    <div
+                    <CollageTile
                       key={index}
-                      className={`collage-img collage-img-${index + 1}`}
-                      style={{
-                        backgroundImage: item.poster
-                          ? `url(${item.poster})`
-                          : "linear-gradient(to bottom, #333, #555)",
-                      }}
-                    >
-                      {!item.poster && (
-                        <div className="poster-placeholder">
-                          {item.title.substring(0, 2).toUpperCase() ||
-                            genre.name.substring(0, 2)}
-                        </div>
-                      )}
-                    </div>
+                      item={item}
+                      genreName={genre.name}
+                      index={index}
+                    />
                   ))}
                 </div>
                 <div className="genre-info">

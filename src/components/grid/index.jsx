@@ -1,9 +1,10 @@
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "./styles/grid.css";
 import StarHalfIcon from "@mui/icons-material/StarHalf";
-import Loader from "../Loader/Loader";
 import { useNavigate } from "react-router-dom";
 import { movieRowMetrics, useFitPerRow } from "../../hooks/useFitPerRow";
+import { MovieCardSkeleton, MovieRowSkeleton } from "../Skeleton";
+import "../Skeleton/styles/skeleton.css";
 
 const Grid = ({
   data = [],
@@ -26,6 +27,10 @@ const Grid = ({
     if (!singleRow) return data;
     return data.slice(0, itemsPerRow);
   }, [data, singleRow, itemsPerRow]);
+
+  const skeletonCount = singleRow
+    ? Math.max(itemsPerRow, 4)
+    : Math.min(Math.max(data.length, 12), 20);
 
   const getRatingClass = useCallback((rating) => {
     if (rating >= 8) return "high";
@@ -60,13 +65,21 @@ const Grid = ({
   const MovieCard = useCallback(
     ({ item }) => {
       const [imageError, setImageError] = useState(false);
+      const [imageLoaded, setImageLoaded] = useState(false);
       const [currentImage, setCurrentImage] = useState(
         () => item.posterUrl || item.backdropUrl || null
       );
 
+      useEffect(() => {
+        setImageLoaded(false);
+        setImageError(false);
+        setCurrentImage(item.posterUrl || item.backdropUrl || null);
+      }, [item.id, item.posterUrl, item.backdropUrl]);
+
       const handleImageError = useCallback(() => {
         if (item.posterUrlSmall && currentImage !== item.posterUrlSmall) {
           setCurrentImage(item.posterUrlSmall);
+          setImageLoaded(false);
           setImageError(false);
         } else {
           setImageError(true);
@@ -81,12 +94,17 @@ const Grid = ({
         <div className="movie-card" onClick={() => handleItemClick(item)}>
           <div className="movie-poster">
             {!imageError && currentImage ? (
-              <img
-                src={currentImage}
-                alt={titleText}
-                onError={handleImageError}
-                loading="lazy"
-              />
+              <>
+                {!imageLoaded && <div className="skeleton skeleton--fill" />}
+                <img
+                  src={currentImage}
+                  alt={titleText}
+                  className={`media-fade${imageLoaded ? " is-loaded" : ""}`}
+                  onLoad={() => setImageLoaded(true)}
+                  onError={handleImageError}
+                  loading="lazy"
+                />
+              </>
             ) : (
               <div className="poster-placeholder">{initials}</div>
             )}
@@ -128,7 +146,7 @@ const Grid = ({
             <li>
               <button
                 onClick={() => onPageChange(currentPage - 1)}
-                disabled={currentPage === 1}
+                disabled={currentPage === 1 || loading}
                 className="pagination-button prev-next"
                 aria-label="Previous page"
               >
@@ -154,6 +172,7 @@ const Grid = ({
               <li key={number}>
                 <button
                   onClick={() => onPageChange(number)}
+                  disabled={loading}
                   className={`pagination-button ${
                     currentPage === number ? "active" : ""
                   }`}
@@ -166,7 +185,7 @@ const Grid = ({
             <li>
               <button
                 onClick={() => onPageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
+                disabled={currentPage === totalPages || loading}
                 className="pagination-button prev-next"
                 aria-label="Next page"
               >
@@ -188,20 +207,30 @@ const Grid = ({
         )}
       </div>
       <div className="movies-grid-measure" ref={measureRef}>
-        <div
-          className={`movies-grid${singleRow ? " movies-grid--single-row" : ""}`}
-          style={
-            singleRow
-              ? { "--items-per-row": Math.max(visibleData.length, 1) }
-              : undefined
-          }
-        >
-          {loading ? (
-            <Loader />
+        {loading ? (
+          singleRow ? (
+            <MovieRowSkeleton count={skeletonCount} />
           ) : (
-            visibleData.map((item) => <MovieCard key={item.id} item={item} />)
-          )}
-        </div>
+            <div className="movies-grid" aria-busy="true">
+              {Array.from({ length: skeletonCount }, (_, i) => (
+                <MovieCardSkeleton key={i} />
+              ))}
+            </div>
+          )
+        ) : (
+          <div
+            className={`movies-grid${singleRow ? " movies-grid--single-row" : ""}`}
+            style={
+              singleRow
+                ? { "--items-per-row": Math.max(visibleData.length, 1) }
+                : undefined
+            }
+          >
+            {visibleData.map((item) => (
+              <MovieCard key={item.id} item={item} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
