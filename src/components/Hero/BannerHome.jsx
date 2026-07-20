@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./styles/banner.css";
 import { getHomeBanners } from "../../api";
+import { useImageLoaded } from "../../hooks/useImageLoaded";
 import { BannerSkeleton } from "../Skeleton";
 import "../Skeleton/styles/skeleton.css";
 
@@ -9,7 +10,6 @@ const BannerHome = () => {
   const [banners, setBanners] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
     const fetchBanners = async () => {
@@ -29,10 +29,6 @@ const BannerHome = () => {
   }, []);
 
   useEffect(() => {
-    setImageLoaded(false);
-  }, [currentIndex, banners]);
-
-  useEffect(() => {
     if (banners.length === 0) return undefined;
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) =>
@@ -41,6 +37,11 @@ const BannerHome = () => {
     }, 5000);
     return () => clearInterval(interval);
   }, [banners]);
+
+  const current = banners[currentIndex];
+  const backdropUrl = current?.backdropUrl || null;
+  const { imgRef, loaded: imageLoaded, markLoaded } =
+    useImageLoaded(backdropUrl);
 
   const goToPrev = () => {
     setCurrentIndex((prev) => (prev === 0 ? banners.length - 1 : prev - 1));
@@ -56,7 +57,6 @@ const BannerHome = () => {
 
   if (banners.length === 0) return null;
 
-  const current = banners[currentIndex];
   const mediaType = current.mediaType || "movie";
 
   return (
@@ -64,10 +64,11 @@ const BannerHome = () => {
       <div className="banner-slide">
         {!imageLoaded && <div className="skeleton skeleton--banner-image" />}
         <img
+          ref={imgRef}
           src={current.backdropUrl}
           alt={current.title}
           className={`banner-image media-fade${imageLoaded ? " is-loaded" : ""}`}
-          onLoad={() => setImageLoaded(true)}
+          onLoad={markLoaded}
         />
         <div className="banner-overlay" />
 

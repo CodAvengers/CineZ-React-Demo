@@ -184,7 +184,7 @@
   border-radius: 8px 8px 0 0;
 }
 
-.movie-poster img:hover {
+.movie-poster img.media-fade.is-loaded:hover {
   opacity: 0.9;
 }
 

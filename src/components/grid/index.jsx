@@ -3,8 +3,76 @@ import "./styles/grid.css";
 import StarHalfIcon from "@mui/icons-material/StarHalf";
 import { useNavigate } from "react-router-dom";
 import { movieRowMetrics, useFitPerRow } from "../../hooks/useFitPerRow";
+import { useImageLoaded } from "../../hooks/useImageLoaded";
 import { MovieCardSkeleton, MovieRowSkeleton } from "../Skeleton";
 import "../Skeleton/styles/skeleton.css";
+
+function getRatingClass(rating) {
+  if (rating >= 8) return "high";
+  if (rating >= 5) return "medium";
+  return "low";
+}
+
+function MovieCard({ item, onItemClick }) {
+  const [imageError, setImageError] = useState(false);
+  const [currentImage, setCurrentImage] = useState(
+    () => item.posterUrl || item.backdropUrl || null
+  );
+  const { imgRef, loaded: imageLoaded, markLoaded } =
+    useImageLoaded(currentImage);
+
+  useEffect(() => {
+    setImageError(false);
+    setCurrentImage(item.posterUrl || item.backdropUrl || null);
+  }, [item.id, item.posterUrl, item.backdropUrl]);
+
+  const handleImageError = () => {
+    if (item.posterUrlSmall && currentImage !== item.posterUrlSmall) {
+      setCurrentImage(item.posterUrlSmall);
+      setImageError(false);
+    } else {
+      setImageError(true);
+    }
+  };
+
+  const titleText = item.title || "NA";
+  const initials = titleText.substring(0, 2).toUpperCase();
+  const rating = item.rating ?? 0;
+
+  return (
+    <div className="movie-card" onClick={() => onItemClick?.(item)}>
+      <div className="movie-poster">
+        {!imageError && currentImage ? (
+          <>
+            {!imageLoaded && <div className="skeleton skeleton--fill" />}
+            <img
+              ref={imgRef}
+              src={currentImage}
+              alt={titleText}
+              className={`media-fade${imageLoaded ? " is-loaded" : ""}`}
+              onLoad={markLoaded}
+              onError={handleImageError}
+              loading="lazy"
+            />
+          </>
+        ) : (
+          <div className="poster-placeholder">{initials}</div>
+        )}
+      </div>
+      <div className="movie-info">
+        <div className="movie-title">{titleText}</div>
+        <div className="movie-meta">
+          {rating > 0 && (
+            <span className={`movie-rating ${getRatingClass(rating)}`}>
+              <StarHalfIcon style={{ fontSize: "14px" }} />
+              {rating.toFixed(1)}/10
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const Grid = ({
   data = [],
@@ -32,12 +100,6 @@ const Grid = ({
     ? Math.max(itemsPerRow, 4)
     : Math.min(Math.max(data.length, 12), 20);
 
-  const getRatingClass = useCallback((rating) => {
-    if (rating >= 8) return "high";
-    if (rating >= 5) return "medium";
-    return "low";
-  }, []);
-
   const handleViewAll = useCallback(() => {
     if (title.includes("Netflix Originals")) {
       navigate(`/view-all/netflix-originals-${mediaType}`);
@@ -54,77 +116,6 @@ const Grid = ({
       navigate(`/view-all/${formattedTitle}`);
     }
   }, [title, mediaType, navigate]);
-
-  const handleItemClick = useCallback(
-    (item) => {
-      onItemClick?.(item);
-    },
-    [onItemClick]
-  );
-
-  const MovieCard = useCallback(
-    ({ item }) => {
-      const [imageError, setImageError] = useState(false);
-      const [imageLoaded, setImageLoaded] = useState(false);
-      const [currentImage, setCurrentImage] = useState(
-        () => item.posterUrl || item.backdropUrl || null
-      );
-
-      useEffect(() => {
-        setImageLoaded(false);
-        setImageError(false);
-        setCurrentImage(item.posterUrl || item.backdropUrl || null);
-      }, [item.id, item.posterUrl, item.backdropUrl]);
-
-      const handleImageError = useCallback(() => {
-        if (item.posterUrlSmall && currentImage !== item.posterUrlSmall) {
-          setCurrentImage(item.posterUrlSmall);
-          setImageLoaded(false);
-          setImageError(false);
-        } else {
-          setImageError(true);
-        }
-      }, [item.posterUrlSmall, currentImage]);
-
-      const titleText = item.title || "NA";
-      const initials = titleText.substring(0, 2).toUpperCase();
-      const rating = item.rating ?? 0;
-
-      return (
-        <div className="movie-card" onClick={() => handleItemClick(item)}>
-          <div className="movie-poster">
-            {!imageError && currentImage ? (
-              <>
-                {!imageLoaded && <div className="skeleton skeleton--fill" />}
-                <img
-                  src={currentImage}
-                  alt={titleText}
-                  className={`media-fade${imageLoaded ? " is-loaded" : ""}`}
-                  onLoad={() => setImageLoaded(true)}
-                  onError={handleImageError}
-                  loading="lazy"
-                />
-              </>
-            ) : (
-              <div className="poster-placeholder">{initials}</div>
-            )}
-          </div>
-          <div className="movie-info">
-            <div className="movie-title">{titleText}</div>
-            <div className="movie-meta">
-              {rating > 0 && (
-                <span className={`movie-rating ${getRatingClass(rating)}`}>
-                  <StarHalfIcon style={{ fontSize: "14px" }} />
-                  {rating.toFixed(1)}/10
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-      );
-    },
-    [getRatingClass, handleItemClick]
-  );
 
   return (
     <div className="movies-container">
@@ -227,7 +218,7 @@ const Grid = ({
             }
           >
             {visibleData.map((item) => (
-              <MovieCard key={item.id} item={item} />
+              <MovieCard key={item.id} item={item} onItemClick={onItemClick} />
             ))}
           </div>
         )}
@@ -235,4 +226,5 @@ const Grid = ({
     </div>
   );
 };
+
 export default React.memo(Grid);
