@@ -1,8 +1,78 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "./styles/grid.css";
 import StarHalfIcon from "@mui/icons-material/StarHalf";
-import Loader from "../Loader/Loader";
 import { useNavigate } from "react-router-dom";
+import { movieRowMetrics, useFitPerRow } from "../../hooks/useFitPerRow";
+import { useImageLoaded } from "../../hooks/useImageLoaded";
+import { MovieCardSkeleton, MovieRowSkeleton } from "../Skeleton";
+import "../Skeleton/styles/skeleton.css";
+
+function getRatingClass(rating) {
+  if (rating >= 8) return "high";
+  if (rating >= 5) return "medium";
+  return "low";
+}
+
+function MovieCard({ item, onItemClick }) {
+  const [imageError, setImageError] = useState(false);
+  const [currentImage, setCurrentImage] = useState(
+    () => item.posterUrl || item.backdropUrl || null
+  );
+  const { imgRef, loaded: imageLoaded, markLoaded } =
+    useImageLoaded(currentImage);
+
+  useEffect(() => {
+    setImageError(false);
+    setCurrentImage(item.posterUrl || item.backdropUrl || null);
+  }, [item.id, item.posterUrl, item.backdropUrl]);
+
+  const handleImageError = () => {
+    if (item.posterUrlSmall && currentImage !== item.posterUrlSmall) {
+      setCurrentImage(item.posterUrlSmall);
+      setImageError(false);
+    } else {
+      setImageError(true);
+    }
+  };
+
+  const titleText = item.title || "NA";
+  const initials = titleText.substring(0, 2).toUpperCase();
+  const rating = item.rating ?? 0;
+
+  return (
+    <div className="movie-card" onClick={() => onItemClick?.(item)}>
+      <div className="movie-poster">
+        {!imageError && currentImage ? (
+          <>
+            {!imageLoaded && <div className="skeleton skeleton--fill" />}
+            <img
+              ref={imgRef}
+              src={currentImage}
+              alt={titleText}
+              className={`media-fade${imageLoaded ? " is-loaded" : ""}`}
+              onLoad={markLoaded}
+              onError={handleImageError}
+              loading="lazy"
+            />
+          </>
+        ) : (
+          <div className="poster-placeholder">{initials}</div>
+        )}
+      </div>
+      <div className="movie-info">
+        <div className="movie-title">{titleText}</div>
+        <div className="movie-meta">
+          {rating > 0 && (
+            <span className={`movie-rating ${getRatingClass(rating)}`}>
+              <StarHalfIcon style={{ fontSize: "14px" }} />
+              {rating.toFixed(1)}/10
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const Grid = ({
   data = [],
@@ -15,40 +85,20 @@ const Grid = ({
   showViewAll = true,
   showPagination = true,
   mediaType = "movie",
+  singleRow = true,
 }) => {
   const navigate = useNavigate();
+  const measureRef = useRef(null);
+  const itemsPerRow = useFitPerRow(measureRef, movieRowMetrics);
 
-  // Memoized functions for better performance
-  const getRatingClass = useCallback((voteAverage) => {
-    if (voteAverage >= 8) return "high";
-    if (voteAverage >= 5) return "medium";
-    return "low";
-  }, []);
+  const visibleData = useMemo(() => {
+    if (!singleRow) return data;
+    return data.slice(0, itemsPerRow);
+  }, [data, singleRow, itemsPerRow]);
 
-  // Improved image URL builder matching TVDetails logic
-  const getImageUrl = useCallback((path, size = "w500") => {
-    if (!path) return null;
-    return `https://image.tmdb.org/t/p/${size}${path}`;
-  }, []);
-
-  // Enhanced image fallback system
-  const getBestAvailableImage = useCallback(
-    (item) => {
-      // Try these image types in order of preference
-      const imageTypes = [
-        item.poster_path, // Primary poster
-        item.backdrop_path, // Backdrop image
-        item.still_path, // For episodes
-        item.profile_path, // For cast
-      ];
-
-      for (const path of imageTypes) {
-        if (path) return getImageUrl(path);
-      }
-      return null;
-    },
-    [getImageUrl]
-  );
+  const skeletonCount = singleRow
+    ? Math.max(itemsPerRow, 4)
+    : Math.min(Math.max(data.length, 12), 20);
 
   const handleViewAll = useCallback(() => {
     if (title.includes("Netflix Originals")) {
@@ -66,68 +116,6 @@ const Grid = ({
       navigate(`/view-all/${formattedTitle}`);
     }
   }, [title, mediaType, navigate]);
-
-  const handleItemClick = useCallback(
-    (item) => {
-      onItemClick(item);
-    },
-    [onItemClick]
-  );
-
-  const MovieCard = useCallback(
-    ({ item }) => {
-      const [imageError, setImageError] = useState(false);
-      const [currentImage, setCurrentImage] = useState(() =>
-        getBestAvailableImage(item)
-      );
-
-      const handleImageError = useCallback(() => {
-        // Try smaller image size if available
-        if (item.poster_path && !currentImage?.includes("w200")) {
-          setCurrentImage(getImageUrl(item.poster_path, "w200"));
-          setImageError(false);
-        } else {
-          setImageError(true);
-        }
-      }, [item.poster_path, currentImage, getImageUrl]);
-
-      const titleText = item.title || item.name || "NA";
-      const initials = titleText.substring(0, 2).toUpperCase();
-
-      return (
-        <div className="movie-card" onClick={() => handleItemClick(item)}>
-          <div className="movie-poster">
-            {!imageError && currentImage ? (
-              <img
-                src={currentImage}
-                alt={titleText}
-                onError={handleImageError}
-                loading="lazy"
-              />
-            ) : (
-              <div className="poster-placeholder">{initials}</div>
-            )}
-          </div>
-          <div className="movie-info">
-            <div className="movie-title">{titleText}</div>
-            <div className="movie-meta">
-              {item.vote_average > 0 && (
-                <span
-                  className={`movie-rating ${getRatingClass(
-                    item.vote_average
-                  )}`}
-                >
-                  <StarHalfIcon style={{ fontSize: "14px" }} />
-                  {item.vote_average.toFixed(1)}/10
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-      );
-    },
-    [getBestAvailableImage, getRatingClass, handleItemClick]
-  );
 
   return (
     <div className="movies-container">
@@ -149,7 +137,7 @@ const Grid = ({
             <li>
               <button
                 onClick={() => onPageChange(currentPage - 1)}
-                disabled={currentPage === 1}
+                disabled={currentPage === 1 || loading}
                 className="pagination-button prev-next"
                 aria-label="Previous page"
               >
@@ -175,6 +163,7 @@ const Grid = ({
               <li key={number}>
                 <button
                   onClick={() => onPageChange(number)}
+                  disabled={loading}
                   className={`pagination-button ${
                     currentPage === number ? "active" : ""
                   }`}
@@ -187,7 +176,7 @@ const Grid = ({
             <li>
               <button
                 onClick={() => onPageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
+                disabled={currentPage === totalPages || loading}
                 className="pagination-button prev-next"
                 aria-label="Next page"
               >
@@ -208,14 +197,34 @@ const Grid = ({
           </ul>
         )}
       </div>
-      <div className="movies-grid">
+      <div className="movies-grid-measure" ref={measureRef}>
         {loading ? (
-          <Loader />
+          singleRow ? (
+            <MovieRowSkeleton count={skeletonCount} />
+          ) : (
+            <div className="movies-grid" aria-busy="true">
+              {Array.from({ length: skeletonCount }, (_, i) => (
+                <MovieCardSkeleton key={i} />
+              ))}
+            </div>
+          )
         ) : (
-          data.map((item) => <MovieCard key={item.id} item={item} />)
+          <div
+            className={`movies-grid${singleRow ? " movies-grid--single-row" : ""}`}
+            style={
+              singleRow
+                ? { "--items-per-row": Math.max(visibleData.length, 1) }
+                : undefined
+            }
+          >
+            {visibleData.map((item) => (
+              <MovieCard key={item.id} item={item} onItemClick={onItemClick} />
+            ))}
+          </div>
         )}
       </div>
     </div>
   );
 };
+
 export default React.memo(Grid);

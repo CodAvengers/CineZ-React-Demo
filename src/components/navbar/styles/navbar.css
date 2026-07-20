@@ -42,26 +42,21 @@ a {
   position: fixed;
   top: 0;
   left: 0;
+  right: 0;
   z-index: var(--z-fixed);
-  /* box-shadow: 0 2px 4px rgba(0,0,0,0.1); */
-  max-width: 1920px;
 }
 
-/* Navbar */
+/* Navbar — full-bleed header, content aligned to page column */
 .nav {
   height: 60px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 1.5rem;
-  max-width: 1600px;
-  margin: auto;
-}
-
-@media (max-width: 1366px) {
-  .nav {
-    padding: 0 80px;
-  }
+  width: 100%;
+  max-width: var(--page-content-max);
+  margin-inline: auto;
+  padding-inline: var(--page-gutter);
+  box-sizing: border-box;
 }
 
 

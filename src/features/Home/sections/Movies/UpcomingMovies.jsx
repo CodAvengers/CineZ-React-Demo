@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Grid from "../../../../components/grid";
+import { getUpcomingMovies } from "../../../../api";
 
 const UpcomingMovies = () => {
   const [movies, setMovies] = useState([]);
@@ -8,11 +9,8 @@ const UpcomingMovies = () => {
   useEffect(() => {
     const fetchUpcoming = async () => {
       try {
-        const res = await fetch(
-          `https://api.themoviedb.org/3/movie/upcoming?api_key=${TMDB_API_KEY}`
-        );
-        const data = await res.json();
-        setMovies(data.results.slice(0, 7)); // Show first 10
+        const { items } = await getUpcomingMovies();
+        setMovies(items);
       } catch (err) {
         console.error("Failed to fetch upcoming movies:", err);
       } finally {
@@ -23,10 +21,8 @@ const UpcomingMovies = () => {
   }, []);
 
   return (
-    <Grid 
-      title="Coming Soon to Theaters" 
-      data={movies} 
-      loading={loading}
-    />
+    <Grid title="Coming Soon to Theaters" data={movies} loading={loading} />
   );
 };
+
+export default UpcomingMovies;

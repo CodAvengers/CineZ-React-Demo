@@ -1,15 +1,13 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import {
   RiCloseLine,
   RiSearchLine,
-  RiUserLine,
   RiMenuLine,
 } from "react-icons/ri";
-import { NavLink } from "react-router-dom";
 import "./styles/navbar.css";
 import logo from "../../assets/CineZ.svg";
+import { searchMulti } from "../../api";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -40,12 +38,9 @@ const Navbar = () => {
     setQuery(input);
 
     if (input.length > 1) {
-      fetch(
-        `https://api.themoviedb.org/3/search/multi?api_key=YOUR_API_KEY&query=${input}`
-      )
-        .then((res) => res.json())
+      searchMulti({ query: input, limit: 5 })
         .then((data) => {
-          setResults(data.results.slice(0, 5)); // Top 5 results
+          setResults(data.items);
         })
         .catch((err) => {
           console.error("Search error:", err);
@@ -67,7 +62,7 @@ const Navbar = () => {
 
   return (
     <header className="header" id="header">
-      <nav className="nav container">
+      <nav className="nav">
         <Link to="/" className="nav__logo">
           <img src={logo} alt="Cinez logo" />
         </Link>
@@ -182,10 +177,8 @@ const Navbar = () => {
             <div className="search-results-dropdown">
               {results.map((item) => (
                 <Link
-                  key={item.id}
-                  to={`/${item.media_type === "movie" ? "movie" : "tv"}/${
-                    item.id
-                  }`}
+                  key={`${item.mediaType}-${item.id}`}
+                  to={`/${item.mediaType}/${item.id}`}
                   className="search-result-item"
                   onClick={() => {
                     setShowSearch(false);
@@ -193,7 +186,7 @@ const Navbar = () => {
                     setResults([]);
                   }}
                 >
-                  {item.title || item.name}
+                  {item.title}
                 </Link>
               ))}
             </div>

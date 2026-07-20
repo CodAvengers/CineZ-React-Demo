@@ -1,0 +1,34 @@
+/**
+ * Page layout tokens + shared rails.
+ * Imported first from index.css so tokens exist app-wide.
+ */
+
+:root {
+  --page-content-max: 1600px;
+  --page-gutter: 40px;
+  --page-gutter-mobile: 1rem;
+  --banner-control-width: 44px;
+  --banner-control-gap: 1rem;
+}
+
+/* Ultrawide / >1080p: tighter side inset, wider content rail */
+@media (min-width: 1621px) {
+  :root {
+    --page-content-max: 2200px;
+    --page-gutter: 24px;
+  }
+}
+
+@media (max-width: 435px) {
+  :root {
+    --page-gutter: var(--page-gutter-mobile);
+  }
+}
+
+.page-rail {
+  width: 100%;
+  max-width: var(--page-content-max);
+  margin-inline: auto;
+  padding-inline: var(--page-gutter);
+  box-sizing: border-box;
+}

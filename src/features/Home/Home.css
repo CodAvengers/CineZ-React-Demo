@@ -1,15 +1,1 @@
-/* .home-movies-container {
-  max-width: 1600px;
-  margin: 0 auto;
-  color: #333;
-}
-
-.movies-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 20px;
-  margin-bottom: 30px;
-    background: linear-gradient(to top, rgb(20, 20, 20), transparent);
-
-}
- */
+/* Page shell lives in index.css (.home-movies-container + --page-* tokens) */

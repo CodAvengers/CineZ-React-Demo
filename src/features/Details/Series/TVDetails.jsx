@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import './styles/TVDetails.css';
-
-const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import "./styles/TVDetails.css";
+import { getTvDetails, getTvSeason, tvEmbedUrl } from "../../../api";
 
 const TVDetails = () => {
   const { id } = useParams();
@@ -18,16 +17,13 @@ const TVDetails = () => {
 
   const fetchEpisodes = async (seasonNumber) => {
     try {
-      const response = await fetch(
-        `https://api.themoviedb.org/3/tv/${id}/season/${seasonNumber}?api_key=${TMDB_API_KEY}`
-      );
-      const data = await response.json();
+      const data = await getTvSeason(id, seasonNumber);
       setEpisodes(data.episodes || []);
       if (data.episodes?.length > 0) {
-        setSelectedEpisode(1); // Reset to first episode when season changes
+        setSelectedEpisode(1);
       }
     } catch (err) {
-      console.error('Error fetching episodes:', err);
+      console.error("Error fetching episodes:", err);
       setEpisodes([]);
     }
   };
@@ -36,64 +32,21 @@ const TVDetails = () => {
     const fetchSeriesData = async () => {
       try {
         setLoading(true);
-        
-        // Fetch series details from TMDB
-        const tmdbResponse = await fetch(
-          `https://api.themoviedb.org/3/tv/${id}?api_key=${TMDB_API_KEY}&append_to_response=credits,content_ratings`
-        );
-        
-        if (!tmdbResponse.ok) throw new Error('TMDB data not found');
-        
-        const tmdbData = await tmdbResponse.json();
-        
-        setSeries({
-          title: tmdbData.name,
-          overview: tmdbData.overview,
-          posterUrl: tmdbData.poster_path 
-            ? `https://image.tmdb.org/t/p/w500${tmdbData.poster_path}`
-            : null,
-          backdropUrl: tmdbData.backdrop_path
-            ? `https://image.tmdb.org/t/p/original${tmdbData.backdrop_path}`
-            : null,
-          rating: tmdbData.vote_average,
-          firstAirDate: tmdbData.first_air_date,
-          lastAirDate: tmdbData.last_air_date,
-          genres: tmdbData.genres?.map(g => g.name).join(', '),
-          creator: tmdbData.created_by?.map(c => c.name).join(', '),
-          episodeRuntime: tmdbData.episode_run_time?.[0],
-          seasons: tmdbData.number_of_seasons,
-          episodes: tmdbData.number_of_episodes,
-          status: tmdbData.status,
-        });
+        const data = await getTvDetails(id);
+        setSeries(data);
+        setCast(data.cast || []);
+        setSeasons(data.seasons || []);
 
-        // Get top 5 cast members
-        setCast(
-          tmdbData.credits?.cast
-            .slice(0, 6)
-            .map(person => ({
-              name: person.name,
-              character: person.character,
-              profileUrl: person.profile_path
-                ? `https://image.tmdb.org/t/p/w200${person.profile_path}`
-                : null
-            })) || []
-        );
-
-        // Prepare seasons data
-        if (tmdbData.seasons) {
-          const filteredSeasons = tmdbData.seasons.filter(s => s.season_number > 0);
-          setSeasons(filteredSeasons);
-          
-          // Load episodes for first season by default
-          if (filteredSeasons.length > 0) {
-            await fetchEpisodes(filteredSeasons[0].season_number);
-          }
+        if (data.seasons?.length > 0) {
+          const firstSeason = data.seasons[0].seasonNumber;
+          setSelectedSeason(firstSeason);
+          await fetchEpisodes(firstSeason);
         }
 
         setError(null);
       } catch (err) {
-        console.error('Error:', err);
-        setError(err.message);
+        console.error("Error:", err);
+        setError(err.message || "TMDB data not found");
       } finally {
         setLoading(false);
       }
@@ -103,7 +56,7 @@ const TVDetails = () => {
   }, [id]);
 
   useEffect(() => {
-    if (selectedSeason > 0) {
+    if (selectedSeason > 0 && series) {
       fetchEpisodes(selectedSeason);
     }
   }, [selectedSeason]);
@@ -119,9 +72,13 @@ const TVDetails = () => {
   };
 
   const getEmbedUrl = () => {
-    if (!id || !selectedSeason || !selectedEpisode) return '';
-    return `https://vidlink.pro/tv/${id}/${selectedSeason}/${selectedEpisode}`;
+    if (!id || !selectedSeason || !selectedEpisode) return "";
+    return tvEmbedUrl(id, selectedSeason, selectedEpisode);
   };
+
+  const selectedEpisodeData = episodes.find(
+    (ep) => ep.episodeNumber === selectedEpisode
+  );
 
   if (loading) return <div className="loading">Loading series details...</div>;
   if (error) return <div className="error">Error: {error}</div>;
@@ -129,7 +86,6 @@ const TVDetails = () => {
 
   return (
     <div className="tv-details-container">
-      {/* Backdrop Image */}
       {series.backdropUrl && (
         <div className="backdrop-image">
           <img src={series.backdropUrl} alt={series.title} />
@@ -137,9 +93,7 @@ const TVDetails = () => {
         </div>
       )}
 
-      {/* Main Content */}
       <div className="series-content">
-        {/* Embed Player */}
         <div className="series-player">
           {embedError ? (
             <div className="embed-error">
@@ -156,7 +110,6 @@ const TVDetails = () => {
           )}
         </div>
 
-        {/* Series Info */}
         <div className="series-header">
           {series.posterUrl && (
             <div className="series-poster">
@@ -166,17 +119,15 @@ const TVDetails = () => {
 
           <div className="series-meta">
             <h1>{series.title}</h1>
-            
+
             <div className="meta-row">
-              <span>{series.firstAirDate?.split('-')[0]}</span>
+              <span>{series.firstAirDate?.split("-")[0]}</span>
               {series.episodeRuntime && <span>{series.episodeRuntime}m</span>}
               {series.genres && <span>{series.genres}</span>}
               <span>{series.status}</span>
             </div>
 
-            <div className="rating">
-              ⭐ {series.rating?.toFixed(1)}/10
-            </div>
+            <div className="rating">⭐ {series.rating?.toFixed(1)}/10</div>
 
             {series.creator && (
               <div className="creator">
@@ -185,11 +136,10 @@ const TVDetails = () => {
             )}
 
             <div className="seasons-info">
-              <strong>Seasons:</strong> {series.seasons}
-              <strong>Episodes:</strong> {series.episodes}
+              <strong>Seasons:</strong> {series.seasonCount}
+              <strong>Episodes:</strong> {series.episodeCount}
             </div>
 
-            {/* Season and Episode Selector */}
             <div className="episode-selector">
               <div className="selector-group">
                 <label htmlFor="season-select">Season:</label>
@@ -198,9 +148,12 @@ const TVDetails = () => {
                   value={selectedSeason}
                   onChange={(e) => handleSeasonChange(Number(e.target.value))}
                 >
-                  {seasons.map(season => (
-                    <option key={season.season_number} value={season.season_number}>
-                      Season {season.season_number}
+                  {seasons.map((season) => (
+                    <option
+                      key={season.seasonNumber}
+                      value={season.seasonNumber}
+                    >
+                      Season {season.seasonNumber}
                     </option>
                   ))}
                 </select>
@@ -212,11 +165,16 @@ const TVDetails = () => {
                   <select
                     id="episode-select"
                     value={selectedEpisode}
-                    onChange={(e) => handleEpisodeChange(Number(e.target.value))}
+                    onChange={(e) =>
+                      handleEpisodeChange(Number(e.target.value))
+                    }
                   >
-                    {episodes.map(episode => (
-                      <option key={episode.episode_number} value={episode.episode_number}>
-                        {episode.episode_number}. {episode.name}
+                    {episodes.map((episode) => (
+                      <option
+                        key={episode.episodeNumber}
+                        value={episode.episodeNumber}
+                      >
+                        {episode.episodeNumber}. {episode.name}
                       </option>
                     ))}
                   </select>
@@ -224,31 +182,29 @@ const TVDetails = () => {
               )}
             </div>
 
-            <button 
+            <button
               className="play-button"
-              onClick={() => window.open(getEmbedUrl(), '_blank')}
+              onClick={() => window.open(getEmbedUrl(), "_blank")}
             >
               ▶ Play Episode {selectedEpisode}
             </button>
           </div>
         </div>
 
-        {/* Overview */}
         <div className="series-overview">
           <h2>Overview</h2>
-          <p>{series.overview || 'No overview available.'}</p>
+          <p>{series.overview || "No overview available."}</p>
         </div>
 
-        {/* Selected Episode Details */}
-        {episodes.length > 0 && episodes[selectedEpisode - 1] && (
+        {selectedEpisodeData && (
           <div className="episode-details">
             <h3>
-              S{selectedSeason}E{selectedEpisode}: {episodes[selectedEpisode - 1].name}
+              S{selectedSeason}E{selectedEpisode}: {selectedEpisodeData.name}
             </h3>
-            <p>{episodes[selectedEpisode - 1].overview || 'No description available.'}</p>
-            {episodes[selectedEpisode - 1].still_path && (
-              <img 
-                src={`https://image.tmdb.org/t/p/w400${episodes[selectedEpisode - 1].still_path}`} 
+            <p>{selectedEpisodeData.overview || "No description available."}</p>
+            {selectedEpisodeData.stillUrl && (
+              <img
+                src={selectedEpisodeData.stillUrl}
                 alt={`S${selectedSeason}E${selectedEpisode}`}
                 className="episode-image"
               />
@@ -256,7 +212,6 @@ const TVDetails = () => {
           </div>
         )}
 
-        {/* Cast */}
         {cast.length > 0 && (
           <div className="series-cast">
             <h2>Cast</h2>

@@ -14,9 +14,9 @@ import AiringTodaySeries from "../features/Home/sections/Series/AiringTodaySerie
 function TvPage() {
   return (
     <div className="home-movies-container">
-      <h1 className="text-3xl font-bold text-center mt-4">Movies</h1>
+      <h1 className="text-3xl font-bold text-center mt-4">TV Shows</h1>
       <p className="text-center text-gray-600 mb-4">
-        Explore a wide range of movies from different genres.
+        Explore a wide range of TV shows from different genres.
       </p>
       <GenreGrid type="tv"/>
       <TrendingSeries />

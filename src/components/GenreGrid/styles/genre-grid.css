@@ -1,9 +1,6 @@
 .genres-container {
-  max-width: 1600px;
+  max-width: var(--page-content-max);
   margin: 1rem auto;
-  /* padding: 0px 20px 20px 20px; */
-  /* border: 1px solid #333; */
-  /* border-radius: 8px; */
 }
 
 .section-header {
@@ -20,9 +17,13 @@
   color: #ffffff;
 }
 
+.genres-grid-measure {
+  width: 100%;
+}
+
 .genres-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(var(--items-per-row, 1), minmax(0, 1fr));
   gap: 20px;
 }
 
@@ -32,22 +33,19 @@
   overflow: hidden;
   border: 1px solid #333;
   transition: transform 0.2s;
-  aspect-ratio: 1/1; /* Perfect square */
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  min-width: 0;
 }
 
 @media (max-width: 1366px) {
 
   .genres-container {
-    padding: 0px 80px 40px 80px;
+    padding: 0 0 40px 0;
     margin-bottom: 0px;
   }
   .genres-grid {
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap:12px;
-  }
-  .genre-card {
-    max-width: 100px;
-    max-height: fit-content;
+    gap: 12px;
   }
   /* .section-title {
     font-size: 20px;
@@ -92,6 +90,14 @@
 .collage-img {
   background-size: cover;
   background-position: center;
+  position: relative;
+  overflow: hidden;
+  opacity: 0.55;
+  transition: opacity 0.35s ease;
+}
+
+.collage-img.is-loaded {
+  opacity: 1;
 }
 
 .collage-img-1 {
@@ -183,7 +189,6 @@
 
 @media (max-width: 435px) {
   .genres-grid {
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
     gap: 16px;
   }
   .genre-title-row {
@@ -191,7 +196,7 @@
     flex-direction: column;
   }
   .genres-container {
-    padding: 0px 10px 10px 16px;
+    padding: 0 0 10px 0;
   }
   .section-title {
     font-size: 1.2rem;

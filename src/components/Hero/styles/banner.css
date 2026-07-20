@@ -1,20 +1,36 @@
 .banner-section {
   position: relative;
+  width: 100%;
   height: 75vh;
   overflow: hidden;
-  border-radius: 8px 8px 0px 0px;
 }
 
 .banner-slide {
   position: relative;
   height: 100%;
+  width: 100%;
+}
+
+.banner-images {
+  position: absolute;
+  inset: 0;
 }
 
 .banner-image {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: top;
+  opacity: 0;
+  transition: opacity var(--banner-fade-ms, 850ms) ease;
+  z-index: 0;
+}
+
+.banner-image.is-active {
+  opacity: 1;
+  z-index: 1;
 }
 
 .banner-overlay {
@@ -24,20 +40,40 @@
   width: 100%;
   height: 100%;
   background: linear-gradient(to top, rgb(20, 20, 20), transparent);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Aligns title, copy, CTA, and arrows with nav / content rails */
+.banner-ui {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  max-width: var(--page-content-max);
+  margin-inline: auto;
+  padding-inline: var(--page-gutter);
+  box-sizing: border-box;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.banner-ui > * {
+  pointer-events: auto;
 }
 
 .banner-content {
   position: absolute;
   bottom: 5%;
-  left: 7%;
+  left: calc(var(--banner-control-width) + var(--banner-control-gap));
+  right: auto;
   color: white;
-  max-width: 50%;
-  animation: fadeIn 1s ease-in-out;
+  max-width: min(50%, 560px);
+  animation: bannerContentIn var(--banner-fade-ms, 850ms) ease;
 }
 
 .Banner_Title {
   font-family: "Roboto", sans-serif;
-  font-weight: 800; /* or use bolder or a specific value like 900 */
+  font-weight: 800;
   font-size: 4rem;
   margin-bottom: 0.1rem;
 }
@@ -84,15 +120,19 @@
     font-size: 0.9rem;
     padding: 8px 16px;
   }
+
   .banner-content {
-    margin-left: 50px;
+    left: calc(var(--banner-control-width) + var(--banner-control-gap));
+    max-width: calc(
+      100% - var(--banner-control-width) - var(--banner-control-gap) - 1rem
+    );
   }
 }
 
-@keyframes fadeIn {
+@keyframes bannerContentIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
@@ -120,9 +160,9 @@
 }
 
 .banner-nav-button.left {
-  left: 1rem;
+  left: 0;
 }
 
 .banner-nav-button.right {
-  right: 1rem;
+  right: 0;
 }
