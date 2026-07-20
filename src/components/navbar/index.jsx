@@ -62,7 +62,7 @@ const Navbar = () => {
 
   return (
     <header className="header" id="header">
-      <nav className="nav container">
+      <nav className="nav">
         <Link to="/" className="nav__logo">
           <img src={logo} alt="Cinez logo" />
         </Link>
