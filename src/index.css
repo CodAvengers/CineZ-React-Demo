@@ -1,24 +1,6 @@
+@import "./styles/layout.css";
 @import "tailwindcss";
 @plugin "daisyui";
-
-:root {
-  --page-content-max: 1600px;
-  --page-gutter: 0px;
-  --page-gutter-tablet: 40px;
-  --page-gutter-mobile: 1rem;
-}
-
-@media (max-width: 1366px) {
-  :root {
-    --page-gutter: var(--page-gutter-tablet);
-  }
-}
-
-@media (max-width: 435px) {
-  :root {
-    --page-gutter: var(--page-gutter-mobile);
-  }
-}
 
 body {
   height: 100%;
@@ -28,11 +10,10 @@ body {
   font-family: "Roboto", sans-serif;
 }
 
-/* Content rails (not the full-bleed carousel) */
 .home-movies-container {
   width: 100%;
   max-width: var(--page-content-max);
-  margin: 0 auto;
-  padding: 0 var(--page-gutter);
+  margin-inline: auto;
+  padding-inline: var(--page-gutter);
   box-sizing: border-box;
 }

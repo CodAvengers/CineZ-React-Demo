@@ -5,9 +5,10 @@
 }
 
 .footer-container {
+  width: 100%;
   max-width: var(--page-content-max);
-  margin: 0 auto;
-  padding: 0 var(--page-gutter);
+  margin-inline: auto;
+  padding-inline: var(--page-gutter);
   box-sizing: border-box;
 }
 
