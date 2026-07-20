@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Grid from "../../../../components/grid";
-
-const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
+import { getAiringTodayTv } from "../../../../api";
 
 const AiringTodaySeries = () => {
   const [airing, setAiring] = useState([]);
@@ -12,15 +11,15 @@ const AiringTodaySeries = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchAiringToday = async () => {
+    const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await fetch(
-          `https://api.themoviedb.org/3/tv/airing_today?language=en-US&page=${airingPage}&api_key=${TMDB_API_KEY}`
-        );
-        const data = await response.json();
-        setAiring(data.results.slice(0, 7));
-        setTotalAiringPages(data.total_pages);
+        const { items, totalPages } = await getAiringTodayTv({
+          page: airingPage,
+          limit: 7,
+        });
+        setAiring(items);
+        setTotalAiringPages(totalPages);
       } catch (error) {
         console.error("Error fetching airing today series:", error);
       } finally {
@@ -28,24 +27,21 @@ const AiringTodaySeries = () => {
       }
     };
 
-    fetchAiringToday();
+    fetchData();
   }, [airingPage]);
-
-  const handleSeriesClick = (series) => {
-    navigate(`/tv/${series.id}`);
-  };
 
   return (
     <div className="series-container">
       <Grid
-        title="Airing Today"
+        title="Airing Today Series"
         data={airing}
         loading={loading}
         currentPage={airingPage}
         totalPages={totalAiringPages}
-        onPageChange={(page) => setAiringPage(page)}
-        onItemClick={handleSeriesClick}
+        onPageChange={setAiringPage}
+        onItemClick={(series) => navigate(`/tv/${series.id}`)}
         showPagination={true}
+        mediaType="tv"
       />
     </div>
   );

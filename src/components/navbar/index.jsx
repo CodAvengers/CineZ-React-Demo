@@ -7,8 +7,7 @@ import {
 } from "react-icons/ri";
 import "./styles/navbar.css";
 import logo from "../../assets/CineZ.svg";
-
-const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
+import { searchMulti } from "../../api";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -39,17 +38,9 @@ const Navbar = () => {
     setQuery(input);
 
     if (input.length > 1) {
-      fetch(
-        `https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(
-          input
-        )}&include_adult=false`
-      )
-        .then((res) => res.json())
+      searchMulti({ query: input, limit: 5 })
         .then((data) => {
-          const filtered = (data.results || []).filter(
-            (item) => item.media_type === "movie" || item.media_type === "tv"
-          );
-          setResults(filtered.slice(0, 5));
+          setResults(data.items);
         })
         .catch((err) => {
           console.error("Search error:", err);
@@ -186,10 +177,8 @@ const Navbar = () => {
             <div className="search-results-dropdown">
               {results.map((item) => (
                 <Link
-                  key={item.id}
-                  to={`/${item.media_type === "movie" ? "movie" : "tv"}/${
-                    item.id
-                  }`}
+                  key={`${item.mediaType}-${item.id}`}
+                  to={`/${item.mediaType}/${item.id}`}
                   className="search-result-item"
                   onClick={() => {
                     setShowSearch(false);
@@ -197,7 +186,7 @@ const Navbar = () => {
                     setResults([]);
                   }}
                 >
-                  {item.title || item.name}
+                  {item.title}
                 </Link>
               ))}
             </div>

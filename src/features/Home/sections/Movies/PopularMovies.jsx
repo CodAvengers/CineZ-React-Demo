@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Grid from "../../../../components/grid";
-
-const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
+import { getPopularMovies } from "../../../../api";
 
 const PopularMovies = () => {
   const [popular, setPopular] = useState([]);
@@ -12,15 +11,15 @@ const PopularMovies = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchPopularMovies = async () => {
+    const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await fetch(
-          `https://api.themoviedb.org/3/movie/popular?language=en-US&page=${popularPage}&api_key=${TMDB_API_KEY}`
-        );
-        const data = await response.json();
-        setPopular(data.results.slice(0, 7));
-        setTotalPopularPages(data.total_pages);
+        const { items, totalPages } = await getPopularMovies({
+          page: popularPage,
+          limit: 7,
+        });
+        setPopular(items);
+        setTotalPopularPages(totalPages);
       } catch (error) {
         console.error("Error fetching popular movies:", error);
       } finally {
@@ -28,12 +27,8 @@ const PopularMovies = () => {
       }
     };
 
-    fetchPopularMovies();
+    fetchData();
   }, [popularPage]);
-
-  const handleMovieClick = (movie) => {
-    navigate(`/movie/${movie.id}`);
-  };
 
   return (
     <div className="movies-container">
@@ -43,8 +38,8 @@ const PopularMovies = () => {
         loading={loading}
         currentPage={popularPage}
         totalPages={totalPopularPages}
-        onPageChange={(page) => setPopularPage(page)}
-        onItemClick={handleMovieClick}
+        onPageChange={setPopularPage}
+        onItemClick={(movie) => navigate(`/movie/${movie.id}`)}
         showPagination={true}
       />
     </div>

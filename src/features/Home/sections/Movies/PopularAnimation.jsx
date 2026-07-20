@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Grid from "../../../../components/grid";
-
-const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
+import { getPopularAnimation } from "../../../../api";
 
 const PopularAnimation = () => {
   const [animation, setAnimation] = useState([]);
@@ -12,15 +11,12 @@ const PopularAnimation = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchAnimation = async () => {
+    const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await fetch(
-          `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_genres=16&sort_by=popularity.desc&page=${page}`
-        );
-        const data = await response.json();
-        setAnimation(data.results.slice(0, 7));
-        setTotalPages(data.total_pages);
+        const result = await getPopularAnimation({ page, limit: 7 });
+        setAnimation(result.items);
+        setTotalPages(result.totalPages);
       } catch (error) {
         console.error("Error fetching animation:", error);
       } finally {
@@ -28,12 +24,8 @@ const PopularAnimation = () => {
       }
     };
 
-    fetchAnimation();
+    fetchData();
   }, [page]);
-
-  const handleItemClick = (item) => {
-    navigate(`/movie/${item.id}`);
-  };
 
   return (
     <div className="section-container">
@@ -43,8 +35,8 @@ const PopularAnimation = () => {
         loading={loading}
         currentPage={page}
         totalPages={totalPages}
-        onPageChange={(newPage) => setPage(newPage)}
-        onItemClick={handleItemClick}
+        onPageChange={setPage}
+        onItemClick={(item) => navigate(`/movie/${item.id}`)}
         showPagination={true}
       />
     </div>

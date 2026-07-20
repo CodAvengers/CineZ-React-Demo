@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Grid from "../../../components/grid";
 import "./styles/Search.css";
-
-const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
+import { searchMulti } from "../../../api";
 
 const Search = () => {
   const location = useLocation();
@@ -27,18 +26,9 @@ const Search = () => {
   const fetchSearchResults = async (searchQuery, pageNum) => {
     setLoading(true);
     try {
-      const response = await fetch(
-        `https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(
-          searchQuery
-        )}&page=${pageNum}&include_adult=false`
-      );
-      const data = await response.json();
-      setResults(
-        data.results.filter(
-          (item) => item.media_type === "movie" || item.media_type === "tv"
-        )
-      );
-      setTotalPages(data.total_pages);
+      const data = await searchMulti({ query: searchQuery, page: pageNum });
+      setResults(data.items);
+      setTotalPages(data.totalPages);
     } catch (error) {
       console.error("Search error:", error);
     } finally {
@@ -47,7 +37,7 @@ const Search = () => {
   };
 
   const handleItemClick = (item) => {
-    navigate(`/${item.media_type}/${item.id}`);
+    navigate(`/${item.mediaType}/${item.id}`);
   };
 
   return (

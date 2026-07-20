@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Grid from "../../../../components/grid";
-
-const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
+import { getPopularAnime } from "../../../../api";
 
 const PopularAnime = () => {
   const [anime, setAnime] = useState([]);
@@ -12,28 +11,21 @@ const PopularAnime = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchAnime = async () => {
+    const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await fetch(
-          `https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_API_KEY}&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=${page}`
-        );
-        const data = await response.json();
-        setAnime(data.results.slice(0, 7));
-        setTotalPages(data.total_pages);
+        const result = await getPopularAnime({ page, limit: 7 });
+        setAnime(result.items);
+        setTotalPages(result.totalPages);
       } catch (error) {
-        console.error("Error fetching anime:", error);
+        console.error("Error fetching popular anime:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchAnime();
+    fetchData();
   }, [page]);
-
-  const handleItemClick = (item) => {
-    navigate(`/tv/${item.id}`);
-  };
 
   return (
     <div className="section-container">
@@ -43,10 +35,10 @@ const PopularAnime = () => {
         loading={loading}
         currentPage={page}
         totalPages={totalPages}
-        onPageChange={(newPage) => setPage(newPage)}
-        onItemClick={handleItemClick}
+        onPageChange={setPage}
+        onItemClick={(item) => navigate(`/tv/${item.id}`)}
         showPagination={true}
-        mediaType="tv" // Important for correct routing
+        mediaType="tv"
       />
     </div>
   );

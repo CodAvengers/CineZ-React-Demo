@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Grid from "../../../../components/grid";
-
-const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
+import { getTrendingTv } from "../../../../api";
 
 const TrendingSeries = () => {
   const [trending, setTrending] = useState([]);
@@ -11,14 +10,15 @@ const TrendingSeries = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchTrendingTV = async () => {
+    const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await fetch(
-          `https://api.themoviedb.org/3/trending/tv/week?language=en-US&page=${trendingPage}&api_key=${TMDB_API_KEY}`
-        );
-        const data = await response.json();
-        setTrending(data.results.slice(0, 7));
+        const { items } = await getTrendingTv({
+          page: trendingPage,
+          limit: 7,
+          window: "week",
+        });
+        setTrending(items);
       } catch (error) {
         console.error("Error fetching trending series:", error);
       } finally {
@@ -26,12 +26,8 @@ const TrendingSeries = () => {
       }
     };
 
-    fetchTrendingTV();
+    fetchData();
   }, [trendingPage]);
-
-  const handleSeriesClick = (series) => {
-    navigate(`/tv/${series.id}`);
-  };
 
   return (
     <div className="series-container">
@@ -41,9 +37,10 @@ const TrendingSeries = () => {
         loading={loading}
         currentPage={trendingPage}
         totalPages={1}
-        onPageChange={(page) => setTrendingPage(page)}
-        onItemClick={handleSeriesClick}
+        onPageChange={setTrendingPage}
+        onItemClick={(series) => navigate(`/tv/${series.id}`)}
         showPagination={false}
+        mediaType="tv"
       />
     </div>
   );

@@ -18,37 +18,11 @@ const Grid = ({
 }) => {
   const navigate = useNavigate();
 
-  // Memoized functions for better performance
-  const getRatingClass = useCallback((voteAverage) => {
-    if (voteAverage >= 8) return "high";
-    if (voteAverage >= 5) return "medium";
+  const getRatingClass = useCallback((rating) => {
+    if (rating >= 8) return "high";
+    if (rating >= 5) return "medium";
     return "low";
   }, []);
-
-  // Improved image URL builder matching TVDetails logic
-  const getImageUrl = useCallback((path, size = "w500") => {
-    if (!path) return null;
-    return `https://image.tmdb.org/t/p/${size}${path}`;
-  }, []);
-
-  // Enhanced image fallback system
-  const getBestAvailableImage = useCallback(
-    (item) => {
-      // Try these image types in order of preference
-      const imageTypes = [
-        item.poster_path, // Primary poster
-        item.backdrop_path, // Backdrop image
-        item.still_path, // For episodes
-        item.profile_path, // For cast
-      ];
-
-      for (const path of imageTypes) {
-        if (path) return getImageUrl(path);
-      }
-      return null;
-    },
-    [getImageUrl]
-  );
 
   const handleViewAll = useCallback(() => {
     if (title.includes("Netflix Originals")) {
@@ -69,7 +43,7 @@ const Grid = ({
 
   const handleItemClick = useCallback(
     (item) => {
-      onItemClick(item);
+      onItemClick?.(item);
     },
     [onItemClick]
   );
@@ -77,22 +51,22 @@ const Grid = ({
   const MovieCard = useCallback(
     ({ item }) => {
       const [imageError, setImageError] = useState(false);
-      const [currentImage, setCurrentImage] = useState(() =>
-        getBestAvailableImage(item)
+      const [currentImage, setCurrentImage] = useState(
+        () => item.posterUrl || item.backdropUrl || null
       );
 
       const handleImageError = useCallback(() => {
-        // Try smaller image size if available
-        if (item.poster_path && !currentImage?.includes("w200")) {
-          setCurrentImage(getImageUrl(item.poster_path, "w200"));
+        if (item.posterUrlSmall && currentImage !== item.posterUrlSmall) {
+          setCurrentImage(item.posterUrlSmall);
           setImageError(false);
         } else {
           setImageError(true);
         }
-      }, [item.poster_path, currentImage, getImageUrl]);
+      }, [item.posterUrlSmall, currentImage]);
 
-      const titleText = item.title || item.name || "NA";
+      const titleText = item.title || "NA";
       const initials = titleText.substring(0, 2).toUpperCase();
+      const rating = item.rating ?? 0;
 
       return (
         <div className="movie-card" onClick={() => handleItemClick(item)}>
@@ -111,14 +85,10 @@ const Grid = ({
           <div className="movie-info">
             <div className="movie-title">{titleText}</div>
             <div className="movie-meta">
-              {item.vote_average > 0 && (
-                <span
-                  className={`movie-rating ${getRatingClass(
-                    item.vote_average
-                  )}`}
-                >
+              {rating > 0 && (
+                <span className={`movie-rating ${getRatingClass(rating)}`}>
                   <StarHalfIcon style={{ fontSize: "14px" }} />
-                  {item.vote_average.toFixed(1)}/10
+                  {rating.toFixed(1)}/10
                 </span>
               )}
             </div>
@@ -126,7 +96,7 @@ const Grid = ({
         </div>
       );
     },
-    [getBestAvailableImage, getRatingClass, handleItemClick]
+    [getRatingClass, handleItemClick]
   );
 
   return (
