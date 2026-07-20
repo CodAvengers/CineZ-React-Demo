@@ -2,14 +2,17 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./styles/banner.css";
 import { getHomeBanners } from "../../api";
-import { useImageLoaded } from "../../hooks/useImageLoaded";
 import { BannerSkeleton } from "../Skeleton";
 import "../Skeleton/styles/skeleton.css";
+
+const SLIDE_INTERVAL_MS = 10000;
+const FADE_MS = 850;
 
 const BannerHome = () => {
   const [banners, setBanners] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [imagesReady, setImagesReady] = useState(false);
 
   useEffect(() => {
     const fetchBanners = async () => {
@@ -30,18 +33,38 @@ const BannerHome = () => {
 
   useEffect(() => {
     if (banners.length === 0) return undefined;
+
+    let cancelled = false;
+    const preload = banners.map(
+      (banner) =>
+        new Promise((resolve) => {
+          const img = new Image();
+          img.onload = resolve;
+          img.onerror = resolve;
+          img.src = banner.backdropUrl;
+        })
+    );
+
+    Promise.all(preload).then(() => {
+      if (!cancelled) setImagesReady(true);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [banners]);
+
+  useEffect(() => {
+    if (banners.length < 2 || !imagesReady) return undefined;
+
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) =>
         prevIndex === banners.length - 1 ? 0 : prevIndex + 1
       );
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [banners]);
+    }, SLIDE_INTERVAL_MS);
 
-  const current = banners[currentIndex];
-  const backdropUrl = current?.backdropUrl || null;
-  const { imgRef, loaded: imageLoaded, markLoaded } =
-    useImageLoaded(backdropUrl);
+    return () => clearInterval(interval);
+  }, [banners, currentIndex, imagesReady]);
 
   const goToPrev = () => {
     setCurrentIndex((prev) => (prev === 0 ? banners.length - 1 : prev - 1));
@@ -51,29 +74,38 @@ const BannerHome = () => {
     setCurrentIndex((prev) => (prev === banners.length - 1 ? 0 : prev + 1));
   };
 
-  if (loading) {
+  if (loading || (banners.length > 0 && !imagesReady)) {
     return <BannerSkeleton />;
   }
 
   if (banners.length === 0) return null;
 
+  const current = banners[currentIndex];
   const mediaType = current.mediaType || "movie";
 
   return (
-    <section className="banner-section">
+    <section
+      className="banner-section"
+      style={{ "--banner-fade-ms": `${FADE_MS}ms` }}
+    >
       <div className="banner-slide">
-        {!imageLoaded && <div className="skeleton skeleton--banner-image" />}
-        <img
-          ref={imgRef}
-          src={current.backdropUrl}
-          alt={current.title}
-          className={`banner-image media-fade${imageLoaded ? " is-loaded" : ""}`}
-          onLoad={markLoaded}
-        />
+        <div className="banner-images">
+          {banners.map((banner, index) => (
+            <img
+              key={`${banner.mediaType}-${banner.id}`}
+              src={banner.backdropUrl}
+              alt=""
+              aria-hidden={index !== currentIndex}
+              className={`banner-image${
+                index === currentIndex ? " is-active" : ""
+              }`}
+            />
+          ))}
+        </div>
         <div className="banner-overlay" />
 
         <div className="banner-ui">
-          <div className="banner-content">
+          <div className="banner-content" key={`${current.mediaType}-${current.id}`}>
             <h2 className="Banner_Title">{current.title}</h2>
             <p>{current.overview}</p>
             <Link to={`/${mediaType}/${current.id}`}>
