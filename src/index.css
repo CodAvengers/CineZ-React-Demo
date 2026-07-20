@@ -1,11 +1,38 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+:root {
+  --page-content-max: 1600px;
+  --page-gutter: 0px;
+  --page-gutter-tablet: 40px;
+  --page-gutter-mobile: 1rem;
+}
+
+@media (max-width: 1366px) {
+  :root {
+    --page-gutter: var(--page-gutter-tablet);
+  }
+}
+
+@media (max-width: 435px) {
+  :root {
+    --page-gutter: var(--page-gutter-mobile);
+  }
+}
 
 body {
-    height: 100%;
-    min-height: 100vh;
-    background-color: rgb(20, 20, 20); /* Dark gray */
-    margin: 0;
-    font-family: 'Roboto', sans-serif;
-    }
+  height: 100%;
+  min-height: 100vh;
+  background-color: rgb(20, 20, 20);
+  margin: 0;
+  font-family: "Roboto", sans-serif;
+}
+
+/* Content rails (not the full-bleed carousel) */
+.home-movies-container {
+  width: 100%;
+  max-width: var(--page-content-max);
+  margin: 0 auto;
+  padding: 0 var(--page-gutter);
+  box-sizing: border-box;
+}

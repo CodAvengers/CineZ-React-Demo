@@ -5,8 +5,10 @@
 }
 
 .footer-container {
-  max-width: 1600px;
+  max-width: var(--page-content-max);
   margin: 0 auto;
+  padding: 0 var(--page-gutter);
+  box-sizing: border-box;
 }
 
 .footer-top {

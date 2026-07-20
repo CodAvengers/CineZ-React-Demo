@@ -52,29 +52,32 @@ const BannerHome = () => {
           className="banner-image"
         />
         <div className="banner-overlay" />
-        <div className="banner-content">
-          <h2 className="Banner_Title">{current.title}</h2>
-          <p>{current.overview}</p>
-          <Link to={`/${mediaType}/${current.id}`}>
-            <button className="banner_play_button">PLAY NOW</button>
-          </Link>
+
+        <div className="banner-ui">
+          <div className="banner-content">
+            <h2 className="Banner_Title">{current.title}</h2>
+            <p>{current.overview}</p>
+            <Link to={`/${mediaType}/${current.id}`}>
+              <button className="banner_play_button">PLAY NOW</button>
+            </Link>
+          </div>
+
+          <button
+            className="banner-nav-button left"
+            onClick={goToPrev}
+            aria-label="Previous Banner"
+          >
+            &#8249;
+          </button>
+
+          <button
+            className="banner-nav-button right"
+            onClick={goToNext}
+            aria-label="Next Banner"
+          >
+            &#8250;
+          </button>
         </div>
-
-        <button
-          className="banner-nav-button left"
-          onClick={goToPrev}
-          aria-label="Previous Banner"
-        >
-          &#8249;
-        </button>
-
-        <button
-          className="banner-nav-button right"
-          onClick={goToNext}
-          aria-label="Next Banner"
-        >
-          &#8250;
-        </button>
       </div>
     </section>
   );

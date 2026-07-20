@@ -20,25 +20,27 @@ import CultClassics from "./sections/Movies/CultClassics";
 
 const Home = () => {
   return (
-    <div className="home-movies-container">
+    <>
       <BannerHome />
-      <GenreGrid />
-      <PopularMovies />
-      <TrendingSeries />
-      <TopRatedMovies />
-      <TopRatedSeries />
-      <TrendingMovies />
-      <PopularAnimation />
-      <NetflixOriginals />
-      <AmazonOriginals />
-      <HBOOriginals />
-      <DisneyPlusOriginals />
-      <AppleTVOriginals />
-      <CultClassics />
-      <PopularAnime />
-      <AiringTodaySeries />
-      <PopularSeries />
-    </div>
+      <div className="home-movies-container">
+        <GenreGrid />
+        <PopularMovies />
+        <TrendingSeries />
+        <TopRatedMovies />
+        <TopRatedSeries />
+        <TrendingMovies />
+        <PopularAnimation />
+        <NetflixOriginals />
+        <AmazonOriginals />
+        <HBOOriginals />
+        <DisneyPlusOriginals />
+        <AppleTVOriginals />
+        <CultClassics />
+        <PopularAnime />
+        <AiringTodaySeries />
+        <PopularSeries />
+      </div>
+    </>
   );
 };
 

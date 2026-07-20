@@ -1,13 +1,14 @@
 .banner-section {
   position: relative;
+  width: 100%;
   height: 75vh;
   overflow: hidden;
-  border-radius: 8px 8px 0px 0px;
 }
 
 .banner-slide {
   position: relative;
   height: 100%;
+  width: 100%;
 }
 
 .banner-image {
@@ -26,18 +27,35 @@
   background: linear-gradient(to top, rgb(20, 20, 20), transparent);
 }
 
+/* Aligns title, copy, CTA, and arrows with nav / content rails */
+.banner-ui {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  max-width: var(--page-content-max);
+  margin: 0 auto;
+  padding: 0 var(--page-gutter);
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.banner-ui > * {
+  pointer-events: auto;
+}
+
 .banner-content {
   position: absolute;
   bottom: 5%;
-  left: 7%;
+  left: 0;
+  right: auto;
   color: white;
-  max-width: 50%;
+  max-width: min(50%, 560px);
   animation: fadeIn 1s ease-in-out;
 }
 
 .Banner_Title {
   font-family: "Roboto", sans-serif;
-  font-weight: 800; /* or use bolder or a specific value like 900 */
+  font-weight: 800;
   font-size: 4rem;
   margin-bottom: 0.1rem;
 }
@@ -84,8 +102,9 @@
     font-size: 0.9rem;
     padding: 8px 16px;
   }
+
   .banner-content {
-    margin-left: 50px;
+    max-width: calc(100% - 2rem);
   }
 }
 
@@ -120,9 +139,9 @@
 }
 
 .banner-nav-button.left {
-  left: 1rem;
+  left: 0;
 }
 
 .banner-nav-button.right {
-  right: 1rem;
+  right: 0;
 }
