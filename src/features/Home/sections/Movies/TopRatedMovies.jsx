@@ -16,7 +16,6 @@ const TopRatedMovies = () => {
       try {
         const { items, totalPages } = await getTopRatedMovies({
           page: topRatedPage,
-          limit: 7,
         });
         setTopRated(items);
         setTotalTopRatedPages(totalPages);

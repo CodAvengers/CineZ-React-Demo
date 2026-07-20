@@ -1,8 +1,9 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import "./styles/grid.css";
 import StarHalfIcon from "@mui/icons-material/StarHalf";
 import Loader from "../Loader/Loader";
 import { useNavigate } from "react-router-dom";
+import { movieRowMetrics, useFitPerRow } from "../../hooks/useFitPerRow";
 
 const Grid = ({
   data = [],
@@ -15,8 +16,16 @@ const Grid = ({
   showViewAll = true,
   showPagination = true,
   mediaType = "movie",
+  singleRow = true,
 }) => {
   const navigate = useNavigate();
+  const measureRef = useRef(null);
+  const itemsPerRow = useFitPerRow(measureRef, movieRowMetrics);
+
+  const visibleData = useMemo(() => {
+    if (!singleRow) return data;
+    return data.slice(0, itemsPerRow);
+  }, [data, singleRow, itemsPerRow]);
 
   const getRatingClass = useCallback((rating) => {
     if (rating >= 8) return "high";
@@ -178,12 +187,21 @@ const Grid = ({
           </ul>
         )}
       </div>
-      <div className="movies-grid">
-        {loading ? (
-          <Loader />
-        ) : (
-          data.map((item) => <MovieCard key={item.id} item={item} />)
-        )}
+      <div className="movies-grid-measure" ref={measureRef}>
+        <div
+          className={`movies-grid${singleRow ? " movies-grid--single-row" : ""}`}
+          style={
+            singleRow
+              ? { "--items-per-row": Math.max(visibleData.length, 1) }
+              : undefined
+          }
+        >
+          {loading ? (
+            <Loader />
+          ) : (
+            visibleData.map((item) => <MovieCard key={item.id} item={item} />)
+          )}
+        </div>
       </div>
     </div>
   );

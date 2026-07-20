@@ -14,7 +14,7 @@ const PopularAnime = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const result = await getPopularAnime({ page, limit: 7 });
+        const result = await getPopularAnime({ page });
         setAnime(result.items);
         setTotalPages(result.totalPages);
       } catch (error) {

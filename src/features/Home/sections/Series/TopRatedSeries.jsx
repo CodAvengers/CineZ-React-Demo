@@ -16,7 +16,6 @@ const TopRatedSeries = () => {
       try {
         const { items, totalPages } = await getTopRatedTv({
           page: topRatedPage,
-          limit: 7,
         });
         setTopRated(items);
         setTotalTopRatedPages(totalPages);

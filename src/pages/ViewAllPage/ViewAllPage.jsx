@@ -59,6 +59,7 @@ const ViewAllPage = () => {
         onItemClick={handleItemClick}
         showViewAll={false}
         showPagination={false}
+        singleRow={false}
         mediaType={mediaType}
       />
 

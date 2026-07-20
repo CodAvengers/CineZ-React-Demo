@@ -16,7 +16,6 @@ const PopularMovies = () => {
       try {
         const { items, totalPages } = await getPopularMovies({
           page: popularPage,
-          limit: 7,
         });
         setPopular(items);
         setTotalPopularPages(totalPages);

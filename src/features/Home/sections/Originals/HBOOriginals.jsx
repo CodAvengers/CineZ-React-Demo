@@ -15,7 +15,7 @@ const HBOOriginals = ({ mediaType = "tv" }) => {
       try {
         const fetcher =
           mediaType === "movie" ? getPlatformMovies : getPlatformTv;
-        const { items } = await fetcher("hbo", { page, limit: 7 });
+        const { items } = await fetcher("hbo", { page });
         setOriginals(items);
       } catch (error) {
         console.error("Error fetching HBO originals:", error);

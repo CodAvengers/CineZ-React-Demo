@@ -12,7 +12,7 @@ const TrendingThisWeek = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const { items } = await getTrendingThisWeek({ limit: 7 });
+        const { items } = await getTrendingThisWeek();
         setTrending(items);
       } catch (error) {
         console.error("Error fetching trending content:", error);

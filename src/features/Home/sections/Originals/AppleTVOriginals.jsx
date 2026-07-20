@@ -15,7 +15,7 @@ const AppleTVOriginals = ({ mediaType = "tv" }) => {
       try {
         const fetcher =
           mediaType === "movie" ? getPlatformMovies : getPlatformTv;
-        const { items } = await fetcher("apple", { page, limit: 7 });
+        const { items } = await fetcher("apple", { page });
         setOriginals(items);
       } catch (error) {
         console.error("Error fetching Apple originals:", error);

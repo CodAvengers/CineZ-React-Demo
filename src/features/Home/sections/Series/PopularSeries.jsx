@@ -16,7 +16,6 @@ const PopularSeries = () => {
       try {
         const { items, totalPages } = await getPopularTv({
           page: popularPage,
-          limit: 7,
         });
         setPopular(items);
         setTotalPopularPages(totalPages);

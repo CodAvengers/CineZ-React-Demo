@@ -16,7 +16,6 @@ const AiringTodaySeries = () => {
       try {
         const { items, totalPages } = await getAiringTodayTv({
           page: airingPage,
-          limit: 7,
         });
         setAiring(items);
         setTotalAiringPages(totalPages);

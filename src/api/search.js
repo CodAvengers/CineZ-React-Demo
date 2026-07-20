@@ -24,7 +24,7 @@ export async function searchMulti({ query, page = 1, limit } = {}) {
   };
 }
 
-export async function getTrendingThisWeek({ limit = 7 } = {}) {
+export async function getTrendingThisWeek({ limit } = {}) {
   const data = await tmdbGet("/trending/all/week");
   return mapPagedResults(data, undefined, { limit });
 }

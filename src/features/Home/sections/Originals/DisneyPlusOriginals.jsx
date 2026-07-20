@@ -15,7 +15,7 @@ const DisneyPlusOriginals = ({ mediaType = "tv" }) => {
       try {
         const fetcher =
           mediaType === "movie" ? getPlatformMovies : getPlatformTv;
-        const { items } = await fetcher("disney", { page, limit: 7 });
+        const { items } = await fetcher("disney", { page });
         setOriginals(items);
       } catch (error) {
         console.error("Error fetching Disney+ originals:", error);

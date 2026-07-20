@@ -15,7 +15,6 @@ const TrendingSeries = () => {
       try {
         const { items } = await getTrendingTv({
           page: trendingPage,
-          limit: 7,
           window: "week",
         });
         setTrending(items);

@@ -13,7 +13,7 @@ const CultClassics = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const { items } = await getCultClassics({ page, limit: 7 });
+        const { items } = await getCultClassics({ page });
         setMovies(items);
       } catch (error) {
         console.error("Error fetching cult classics:", error);

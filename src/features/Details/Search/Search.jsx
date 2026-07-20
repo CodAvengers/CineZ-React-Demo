@@ -53,6 +53,7 @@ const Search = () => {
             mediaType="mixed"
             showViewAll={false}
             showPagination={false}
+            singleRow={false}
           />
 
           {totalPages > 1 && (

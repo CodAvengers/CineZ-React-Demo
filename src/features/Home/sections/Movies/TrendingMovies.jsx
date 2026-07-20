@@ -16,7 +16,6 @@ const TrendingMovies = () => {
       try {
         const { items, totalPages } = await getTrendingMovies({
           page: trendingPage,
-          limit: 7,
         });
         setTrending(items);
         setTotalTrendingPages(totalPages);

@@ -14,7 +14,7 @@ const PopularAnimation = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const result = await getPopularAnimation({ page, limit: 7 });
+        const result = await getPopularAnimation({ page });
         setAnimation(result.items);
         setTotalPages(result.totalPages);
       } catch (error) {

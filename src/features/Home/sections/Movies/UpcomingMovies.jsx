@@ -9,7 +9,7 @@ const UpcomingMovies = () => {
   useEffect(() => {
     const fetchUpcoming = async () => {
       try {
-        const { items } = await getUpcomingMovies({ limit: 7 });
+        const { items } = await getUpcomingMovies();
         setMovies(items);
       } catch (err) {
         console.error("Failed to fetch upcoming movies:", err);
