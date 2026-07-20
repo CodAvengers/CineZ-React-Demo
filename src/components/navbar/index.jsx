@@ -1,15 +1,14 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import {
   RiCloseLine,
   RiSearchLine,
-  RiUserLine,
   RiMenuLine,
 } from "react-icons/ri";
-import { NavLink } from "react-router-dom";
 import "./styles/navbar.css";
 import logo from "../../assets/CineZ.svg";
+
+const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -41,11 +40,16 @@ const Navbar = () => {
 
     if (input.length > 1) {
       fetch(
-        `https://api.themoviedb.org/3/search/multi?api_key=YOUR_API_KEY&query=${input}`
+        `https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(
+          input
+        )}&include_adult=false`
       )
         .then((res) => res.json())
         .then((data) => {
-          setResults(data.results.slice(0, 5)); // Top 5 results
+          const filtered = (data.results || []).filter(
+            (item) => item.media_type === "movie" || item.media_type === "tv"
+          );
+          setResults(filtered.slice(0, 5));
         })
         .catch((err) => {
           console.error("Search error:", err);

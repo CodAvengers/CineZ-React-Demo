@@ -110,7 +110,7 @@ const ViewAllPage = () => {
         const url = sectionMap[section];
         if (!url) {
           console.error("Invalid section:", section);
-          return navigate("/not-found");
+          return navigate("/not-found", { replace: true });
         }
 
         const res = await fetch(url);

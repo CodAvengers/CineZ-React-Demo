@@ -1,19 +1,15 @@
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
-import { NavLink } from "react-router-dom";
-
+import { Link, NavLink } from "react-router-dom";
+import logo from "../../assets/CineZ.svg";
 import "./styles/footer.css";
 
 export default function AppFooter() {
-  const navigate = useNavigate();
-
   return (
     <footer className="app-footer">
       <div className="footer-container">
         <div className="footer-top">
           <div className="footer-brand">
             <Link to="/" className="footer-logo">
-              <img src="../../CineZ.svg" alt="CineZ Logo" />
+              <img src={logo} alt="CineZ Logo" />
             </Link>
           </div>
           <div className="footer-links">
@@ -21,20 +17,12 @@ export default function AppFooter() {
               <h4>Links</h4>
               <ul>
                 <li>
-                  <NavLink
-                    to="/movies"
-                    className="nav__link"
-                    onClick={() => setShowMenu(false)}
-                  >
+                  <NavLink to="/movies" className="nav__link">
                     Movies
                   </NavLink>
                 </li>
                 <li>
-                  <NavLink
-                    to="/tv-shows"
-                    className="nav__link"
-                    onClick={() => setShowMenu(false)}
-                  >
+                  <NavLink to="/tv-shows" className="nav__link">
                     Series
                   </NavLink>
                 </li>
