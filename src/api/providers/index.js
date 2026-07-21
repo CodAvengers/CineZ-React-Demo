@@ -1,3 +1,4 @@
+import { superEmbedProvider } from "./superembed";
 import { vidlinkProvider } from "./vidlink";
 import { twoEmbedProvider } from "./twoembed";
 import { PLAYBACK_DEFAULT_PROVIDER } from "../config";
@@ -7,7 +8,11 @@ import { PLAYBACK_DEFAULT_PROVIDER } from "../config";
  * Each provider must implement:
  *   { id, name, label, isConfigured(), movieEmbedUrl(), tvEmbedUrl() }
  */
-const PROVIDER_DEFINITIONS = [vidlinkProvider, twoEmbedProvider];
+const PROVIDER_DEFINITIONS = [
+  superEmbedProvider,
+  vidlinkProvider,
+  twoEmbedProvider,
+];
 
 export const PLAYBACK_PROVIDERS = PROVIDER_DEFINITIONS.filter((provider) =>
   provider.isConfigured()

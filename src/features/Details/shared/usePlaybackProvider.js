@@ -7,7 +7,7 @@ import {
   tvEmbedUrl,
 } from "../../../api";
 
-const STORAGE_KEY = "cinez.playbackProvider";
+const STORAGE_KEY = "cinez.playbackProvider.v2";
 
 function readStoredProviderId(providers) {
   try {

@@ -7,8 +7,9 @@ export const PLAYBACK_BASE_URL = import.meta.env.VITE_PLAYBACK_BASE_URL;
 
 export const VIDLINK_BASE_URL = import.meta.env.VITE_VIDLINK_BASE_URL;
 export const TWOEMBED_BASE_URL = import.meta.env.VITE_2EMBED_BASE_URL;
+export const SUPEREMBED_BASE_URL = import.meta.env.VITE_SUPEREMBED_BASE_URL;
 export const PLAYBACK_DEFAULT_PROVIDER =
-  import.meta.env.VITE_PLAYBACK_DEFAULT_PROVIDER || "vidlink";
+  import.meta.env.VITE_PLAYBACK_DEFAULT_PROVIDER || "superembed";
 
 
 export const WATCH_PROVIDERS = {

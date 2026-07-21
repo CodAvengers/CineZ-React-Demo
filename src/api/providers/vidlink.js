@@ -18,7 +18,7 @@ function getBaseUrl() {
 export const vidlinkProvider = {
   id: "vidlink",
   name: "VidLink",
-  label: "Server 1",
+  label: "Server 2",
 
   isConfigured() {
     return Boolean(getBaseUrl());

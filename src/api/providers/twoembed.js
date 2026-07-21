@@ -14,7 +14,7 @@ function getBaseUrl() {
 export const twoEmbedProvider = {
   id: "2embed",
   name: "2Embed",
-  label: "Server 2",
+  label: "Server 3",
 
   isConfigured() {
     return Boolean(getBaseUrl());
