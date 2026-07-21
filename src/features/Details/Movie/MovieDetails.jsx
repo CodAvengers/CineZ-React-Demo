@@ -1,56 +1,23 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import { useParams } from "react-router-dom";
 import "./styles/MovieDetails.css";
-import { getMovieDetails, movieEmbedUrl, PLAYBACK_BASE_URL } from "../../../api";
+import { getMovieDetails, movieEmbedUrl, openEmbed } from "../../../api";
+import {
+  CastList,
+  DetailsBackdrop,
+  EmbedPlayer,
+  useMediaDetails,
+} from "../shared";
 
 const MovieDetails = () => {
   const { id } = useParams();
-  const [movie, setMovie] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [cast, setCast] = useState([]);
+  const { data: movie, loading, error, cast } = useMediaDetails(
+    id,
+    getMovieDetails,
+    { fallbackError: "Movie data not found" }
+  );
 
-  useEffect(() => {
-    let cancelled = false;
-
-    const fetchMovieData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        setMovie(null);
-        setCast([]);
-
-        const data = await getMovieDetails(id);
-        if (cancelled) return;
-
-        setMovie(data);
-        setCast(data.cast || []);
-      } catch (err) {
-        if (cancelled) return;
-        console.error("Error:", err);
-        setError(err.message || "Movie data not found");
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    };
-
-    if (id) {
-      fetchMovieData();
-    }
-
-    return () => {
-      cancelled = true;
-    };
-  }, [id]);
-
-  const embedUrl = useMemo(() => {
-    if (!id || !PLAYBACK_BASE_URL) return "";
-    return movieEmbedUrl(id, {
-      primaryColor: "ff0000",
-      secondaryColor: "a2a2a2",
-      iconColor: "ffebeb",
-    });
-  }, [id]);
+  const embedUrl = useMemo(() => movieEmbedUrl(id), [id]);
 
   if (loading) return <div className="loading">Loading movie details...</div>;
   if (error) return <div className="error">Error: {error}</div>;
@@ -58,32 +25,15 @@ const MovieDetails = () => {
 
   return (
     <div className="movie-details-container">
-      {movie.backdropUrl && (
-        <div className="backdrop-image">
-          <img src={movie.backdropUrl} alt={movie.title} />
-          <div className="backdrop-overlay"></div>
-        </div>
-      )}
+      <DetailsBackdrop src={movie.backdropUrl} alt={movie.title} />
 
       <div className="movie-details-content">
-        <div className="movie-player">
-          {!embedUrl ? (
-            <div className="player-error">
-              Playback is unavailable. Check that{" "}
-              <code>VITE_PLAYBACK_BASE_URL</code> is set in your <code>.env</code>
-              .
-            </div>
-          ) : (
-            <iframe
-              key={id}
-              src={embedUrl}
-              title={`${movie.title} Player`}
-              allow="autoplay; fullscreen; encrypted-media; picture-in-picture; clipboard-write"
-              allowFullScreen
-              referrerPolicy="origin"
-            />
-          )}
-        </div>
+        <EmbedPlayer
+          className="movie-player"
+          src={embedUrl}
+          frameKey={id}
+          title={`${movie.title} Player`}
+        />
 
         <div className="movie-details-header">
           {movie.posterUrl ? (
@@ -135,7 +85,7 @@ const MovieDetails = () => {
             {embedUrl && (
               <button
                 className="play-button"
-                onClick={() => window.open(embedUrl, "_blank", "noopener,noreferrer")}
+                onClick={() => openEmbed(embedUrl)}
               >
                 ▶ Play Movie
               </button>
@@ -148,26 +98,7 @@ const MovieDetails = () => {
           <p>{movie.overview || "No overview available."}</p>
         </div>
 
-        {cast.length > 0 && (
-          <div className="movie-cast">
-            <h2>Cast</h2>
-            <div className="cast-grid">
-              {cast.map((person, index) => (
-                <div key={`${person.name}-${index}`} className="cast-member">
-                  {person.profileUrl ? (
-                    <img src={person.profileUrl} alt={person.name} />
-                  ) : (
-                    <div className="cast-placeholder"></div>
-                  )}
-                  <div className="cast-info">
-                    <strong>{person.name}</strong>
-                    <span>{person.character}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        <CastList cast={cast} className="movie-cast" />
       </div>
     </div>
   );
