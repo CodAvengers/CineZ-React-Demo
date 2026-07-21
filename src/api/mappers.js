@@ -94,7 +94,7 @@ export function mapTvDetails(data) {
       episodeCount: season.episode_count,
       posterUrl: imageUrl(season.poster_path),
     })),
-    cast: (data.credits?.cast || []).slice(0, 6).map(mapCastMember),
+    cast: (data.credits?.cast || []).slice(0, 9).map(mapCastMember),
   };
 }
 

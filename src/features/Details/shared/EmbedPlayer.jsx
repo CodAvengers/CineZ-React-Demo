@@ -11,7 +11,7 @@ const EmbedPlayer = ({
   src,
   title,
   frameKey,
-  className = "embed-player",
+  className = "details-player",
 }) => {
   return (
     <div className={className}>

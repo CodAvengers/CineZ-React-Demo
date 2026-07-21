@@ -5,24 +5,28 @@ const CastList = ({ cast, className }) => {
   if (!cast?.length) return null;
 
   return (
-    <div className={`cast-list ${className || ""}`.trim()}>
+    <section className={`cast-list ${className || ""}`.trim()}>
       <h2>Cast</h2>
-      <div className="cast-grid">
+      <div className="cast-row" role="list">
         {cast.map((person, index) => (
-          <div key={`${person.name}-${index}`} className="cast-member">
+          <article
+            key={`${person.name}-${index}`}
+            className="cast-member"
+            role="listitem"
+          >
             {person.profileUrl ? (
-              <img src={person.profileUrl} alt={person.name} />
+              <img src={person.profileUrl} alt="" loading="lazy" />
             ) : (
-              <div className="cast-placeholder"></div>
+              <div className="cast-placeholder" aria-hidden="true" />
             )}
             <div className="cast-info">
               <strong>{person.name}</strong>
               <span>{person.character}</span>
             </div>
-          </div>
+          </article>
         ))}
       </div>
-    </div>
+    </section>
   );
 };
 

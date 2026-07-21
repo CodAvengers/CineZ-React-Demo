@@ -1,13 +1,23 @@
 import React, { useMemo } from "react";
 import { useParams } from "react-router-dom";
-import "./styles/MovieDetails.css";
 import { getMovieDetails, movieEmbedUrl, openEmbed } from "../../../api";
 import {
   CastList,
-  DetailsBackdrop,
+  DetailsHero,
+  DetailsPageSkeleton,
+  DetailsSection,
+  DetailsShell,
   EmbedPlayer,
   useMediaDetails,
 } from "../shared";
+
+function formatRuntime(runtime) {
+  if (!runtime) return null;
+  const hours = Math.floor(runtime / 60);
+  const minutes = runtime % 60;
+  if (hours <= 0) return `${minutes}m`;
+  return `${hours}h ${minutes}m`;
+}
 
 const MovieDetails = () => {
   const { id } = useParams();
@@ -19,88 +29,86 @@ const MovieDetails = () => {
 
   const embedUrl = useMemo(() => movieEmbedUrl(id), [id]);
 
-  if (loading) return <div className="loading">Loading movie details...</div>;
-  if (error) return <div className="error">Error: {error}</div>;
-  if (!movie) return <div className="error">Movie not found</div>;
+  if (loading) return <DetailsPageSkeleton />;
+  if (error) {
+    return (
+      <DetailsShell>
+        <div className="details-status details-status--error">Error: {error}</div>
+      </DetailsShell>
+    );
+  }
+  if (!movie) {
+    return (
+      <DetailsShell>
+        <div className="details-status details-status--error">Movie not found</div>
+      </DetailsShell>
+    );
+  }
+
+  const extras = [];
+  if (movie.budget > 0) {
+    extras.push({ label: "Budget", value: `$${movie.budget.toLocaleString()}` });
+  }
+  if (movie.revenue > 0) {
+    extras.push({
+      label: "Revenue",
+      value: `$${movie.revenue.toLocaleString()}`,
+    });
+  }
 
   return (
-    <div className="movie-details-container">
-      <DetailsBackdrop src={movie.backdropUrl} alt={movie.title} />
+    <DetailsShell backdropUrl={movie.backdropUrl} backdropAlt={movie.title}>
+      <DetailsHero
+        title={movie.title}
+        meta={[
+          movie.releaseDate?.split("-")[0],
+          formatRuntime(movie.runtime),
+          movie.genres,
+        ]}
+        rating={movie.rating}
+        credit={
+          movie.director ? (
+            <>
+              <strong>Director</strong> {movie.director}
+            </>
+          ) : null
+        }
+      />
 
-      <div className="movie-details-content">
+      <div className="details-player-wrap">
         <EmbedPlayer
-          className="movie-player"
           src={embedUrl}
           frameKey={id}
           title={`${movie.title} Player`}
         />
-
-        <div className="movie-details-header">
-          {movie.posterUrl ? (
-            <div className="movie-details-poster">
-              <img src={movie.posterUrl} alt={movie.title} />
-            </div>
-          ) : (
-            <div className="movie-details-poster-placeholder">🎬</div>
-          )}
-
-          <div className="movie-details-meta">
-            <h1>{movie.title}</h1>
-
-            <div className="movie-details-meta-row">
-              <span>{movie.releaseDate?.split("-")[0]}</span>
-              {movie.runtime && (
-                <span>
-                  {Math.floor(movie.runtime / 60)}h {movie.runtime % 60}m
-                </span>
-              )}
-              {movie.genres && <span>{movie.genres}</span>}
-            </div>
-
-            <div className="movie-details-rating">
-              ⭐ {movie.rating?.toFixed(1)}/10
-            </div>
-
-            {movie.director && (
-              <div className="director">
-                <strong>Director:</strong> {movie.director}
-              </div>
-            )}
-
-            {(movie.budget > 0 || movie.revenue > 0) && (
-              <div className="financial-info">
-                {movie.budget > 0 && (
-                  <div>
-                    <strong>Budget:</strong> ${movie.budget.toLocaleString()}
-                  </div>
-                )}
-                {movie.revenue > 0 && (
-                  <div>
-                    <strong>Revenue:</strong> ${movie.revenue.toLocaleString()}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {embedUrl && (
-              <button
-                className="play-button"
-                onClick={() => openEmbed(embedUrl)}
-              >
-                ▶ Play Movie
-              </button>
-            )}
-          </div>
-        </div>
-
-        <div className="movie-details-overview">
-          <h2>Overview</h2>
-          <p>{movie.overview || "No overview available."}</p>
-        </div>
-
-        <CastList cast={cast} className="movie-cast" />
+        {embedUrl && (
+          <button
+            type="button"
+            className="details-external"
+            onClick={() => openEmbed(embedUrl)}
+          >
+            Open player in new tab
+          </button>
+        )}
       </div>
-    </div>
+
+      <DetailsSection title="Overview">
+        <p>{movie.overview || "No overview available."}</p>
+      </DetailsSection>
+
+      <CastList cast={cast} />
+
+      {extras.length > 0 && (
+        <ul className="details-extras">
+          {extras.map((item) => (
+            <li key={item.label}>
+              <strong>{item.label}</strong>
+              {item.value}
+            </li>
+          ))}
+        </ul>
+      )}
+    </DetailsShell>
   );
 };
 

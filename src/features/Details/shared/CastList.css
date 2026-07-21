@@ -1,54 +1,53 @@
-.cast-list h2 {
-  font-size: 1.8rem;
-  margin-bottom: 1.5rem;
+.cast-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  animation: details-reveal 0.55s ease 0.14s both;
 }
 
-.cast-grid {
+.cast-row {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 1.5rem;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(128px, 148px);
+  gap: 0.9rem;
+  overflow-x: auto;
+  padding-bottom: 0.4rem;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
 }
 
 .cast-member {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  overflow: hidden;
-  transition: all 0.2s;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
 }
 
-.cast-member:hover {
-  transform: translateY(-5px);
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.cast-member img {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-}
-
+.cast-member img,
 .cast-placeholder {
   width: 100%;
-  height: 200px;
-  background: #333;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: 8px;
+  background: #2a2a2a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .cast-info {
-  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
 }
 
 .cast-info strong {
-  display: block;
-  margin-bottom: 0.3rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.25;
 }
 
 .cast-info span {
-  font-size: 0.9rem;
-  color: #ccc;
-}
-
-@media (max-width: 768px) {
-  .cast-grid {
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  }
+  font-size: 0.82rem;
+  color: #a8a8a8;
+  line-height: 1.3;
 }
