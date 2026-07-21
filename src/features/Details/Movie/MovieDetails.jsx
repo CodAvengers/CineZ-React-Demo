@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import "./styles/MovieDetails.css";
-import { getMovieDetails, movieEmbedUrl } from "../../../api";
+import { getMovieDetails, movieEmbedUrl, PLAYBACK_BASE_URL } from "../../../api";
 
 const MovieDetails = () => {
   const { id } = useParams();
@@ -9,35 +9,48 @@ const MovieDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [cast, setCast] = useState([]);
-  const [embedError, setEmbedError] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
+
     const fetchMovieData = async () => {
       try {
         setLoading(true);
+        setError(null);
+        setMovie(null);
+        setCast([]);
+
         const data = await getMovieDetails(id);
+        if (cancelled) return;
+
         setMovie(data);
         setCast(data.cast || []);
-        setError(null);
       } catch (err) {
+        if (cancelled) return;
         console.error("Error:", err);
-        setError(err.message || "TMDB data not found");
+        setError(err.message || "Movie data not found");
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
-    fetchMovieData();
+    if (id) {
+      fetchMovieData();
+    }
+
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
-  const getEmbedUrl = () => {
-    if (!id) return "";
+  const embedUrl = useMemo(() => {
+    if (!id || !PLAYBACK_BASE_URL) return "";
     return movieEmbedUrl(id, {
       primaryColor: "ff0000",
       secondaryColor: "a2a2a2",
       iconColor: "ffebeb",
     });
-  };
+  }, [id]);
 
   if (loading) return <div className="loading">Loading movie details...</div>;
   if (error) return <div className="error">Error: {error}</div>;
@@ -54,18 +67,21 @@ const MovieDetails = () => {
 
       <div className="movie-details-content">
         <div className="movie-player">
-          {embedError ? (
-            <div className="embed-error">
-              Failed to load player. Please try again later.
+          {!embedUrl ? (
+            <div className="player-error">
+              Playback is unavailable. Check that{" "}
+              <code>VITE_PLAYBACK_BASE_URL</code> is set in your <code>.env</code>
+              .
             </div>
           ) : (
             <iframe
-              src={getEmbedUrl()}
-              frameBorder="0"
-              allowFullScreen
+              key={id}
+              src={embedUrl}
               title={`${movie.title} Player`}
-              onError={() => setEmbedError(true)}
-            ></iframe>
+              allow="autoplay; fullscreen; encrypted-media; picture-in-picture; clipboard-write"
+              allowFullScreen
+              referrerPolicy="origin"
+            />
           )}
         </div>
 
@@ -116,12 +132,14 @@ const MovieDetails = () => {
               </div>
             )}
 
-            <button
-              className="play-button"
-              onClick={() => window.open(getEmbedUrl(), "_blank")}
-            >
-              ▶ Play Movie
-            </button>
+            {embedUrl && (
+              <button
+                className="play-button"
+                onClick={() => window.open(embedUrl, "_blank", "noopener,noreferrer")}
+              >
+                ▶ Play Movie
+              </button>
+            )}
           </div>
         </div>
 
@@ -135,7 +153,7 @@ const MovieDetails = () => {
             <h2>Cast</h2>
             <div className="cast-grid">
               {cast.map((person, index) => (
-                <div key={index} className="cast-member">
+                <div key={`${person.name}-${index}`} className="cast-member">
                   {person.profileUrl ? (
                     <img src={person.profileUrl} alt={person.name} />
                   ) : (
