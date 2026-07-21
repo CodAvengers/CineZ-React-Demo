@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { useParams } from "react-router-dom";
-import { getMovieDetails, movieEmbedUrl, openEmbed } from "../../../api";
+import { getMovieDetails, movieEmbedUrl } from "../../../api";
 import {
   CastList,
   DetailsHero,
@@ -81,15 +81,6 @@ const MovieDetails = () => {
           frameKey={id}
           title={`${movie.title} Player`}
         />
-        {embedUrl && (
-          <button
-            type="button"
-            className="details-external"
-            onClick={() => openEmbed(embedUrl)}
-          >
-            Open player in new tab
-          </button>
-        )}
       </div>
 
       <DetailsSection title="Overview">

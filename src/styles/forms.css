@@ -1,0 +1,129 @@
+/**
+ * Shared form controls (selects, etc.)
+ * Imported from index.css for app-wide reuse.
+ */
+
+:root {
+  --ui-select-bg: #1a1a1a;
+  --ui-select-bg-hover: #242424;
+  --ui-select-border: rgba(255, 255, 255, 0.14);
+  --ui-select-text: #f2f2f2;
+  --ui-select-muted: #a8a8a8;
+  --ui-select-accent: #e55300;
+  --ui-select-menu-bg: #141414;
+  --ui-select-option-hover: rgba(229, 83, 0, 0.16);
+  --ui-select-option-active: rgba(229, 83, 0, 0.28);
+  --ui-select-radius: 8px;
+  --ui-select-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+}
+
+.ui-select {
+  position: relative;
+  width: 100%;
+  font-size: 0.95rem;
+  color: var(--ui-select-text);
+}
+
+.ui-select__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 2.6rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--ui-select-radius);
+  border: 1px solid var(--ui-select-border);
+  background: var(--ui-select-bg);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.ui-select__trigger:hover {
+  background: var(--ui-select-bg-hover);
+}
+
+.ui-select__trigger:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--ui-select-accent) 70%, white);
+  outline-offset: 2px;
+}
+
+.ui-select.is-open .ui-select__trigger {
+  border-color: color-mix(in srgb, var(--ui-select-accent) 55%, white);
+}
+
+.ui-select__value {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ui-select__value.is-placeholder {
+  color: var(--ui-select-muted);
+}
+
+.ui-select__chevron {
+  flex-shrink: 0;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-right: 2px solid var(--ui-select-muted);
+  border-bottom: 2px solid var(--ui-select-muted);
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform 0.15s ease;
+}
+
+.ui-select.is-open .ui-select__chevron {
+  transform: rotate(225deg) translateY(-1px);
+}
+
+.ui-select__menu {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0.35rem;
+  list-style: none;
+  max-height: min(280px, 50vh);
+  overflow-y: auto;
+  border-radius: var(--ui-select-radius);
+  border: 1px solid var(--ui-select-border);
+  background: var(--ui-select-menu-bg);
+  box-shadow: var(--ui-select-shadow);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+
+.ui-select__option {
+  display: block;
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ui-select-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ui-select__option:hover,
+.ui-select__option.is-active {
+  background: var(--ui-select-option-hover);
+}
+
+.ui-select__option.is-selected {
+  background: var(--ui-select-option-active);
+  color: #fff;
+}
+
+.ui-select__option:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--ui-select-accent) 70%, white);
+  outline-offset: -2px;
+}

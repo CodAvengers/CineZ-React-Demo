@@ -105,7 +105,6 @@
 .details-player-wrap {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
   animation: details-reveal 0.55s ease 0.05s both;
 }
 
@@ -125,22 +124,6 @@
   height: auto;
   border: 0;
   background: #000;
-}
-
-.details-external {
-  align-self: flex-start;
-  background: none;
-  border: 0;
-  padding: 0;
-  color: var(--details-muted);
-  font-size: 0.9rem;
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.details-external:hover {
-  color: var(--details-accent-hover);
 }
 
 .details-section {
@@ -215,25 +198,6 @@
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--details-muted);
-}
-
-.details-episode__field select {
-  appearance: none;
-  width: 100%;
-  padding: 0.65rem 2.4rem 0.65rem 0.85rem;
-  border-radius: 8px;
-  border: 1px solid var(--details-line);
-  background-color: rgba(255, 255, 255, 0.04);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23a8a8a8' d='M1.4.3 6 4.9 10.6.3 12 1.7 6 7.7 0 1.7z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.85rem center;
-  color: var(--details-text);
-  font-size: 0.95rem;
-}
-
-.details-episode__field select:focus {
-  outline: 2px solid color-mix(in srgb, var(--details-accent) 70%, white);
-  outline-offset: 2px;
 }
 
 .details-episode__info {

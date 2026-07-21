@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useMemo } from "react";
+import UiSelect from "../../../components/UiSelect";
 
 const EpisodePanel = ({
   seasons = [],
@@ -9,6 +10,24 @@ const EpisodePanel = ({
   onEpisodeChange,
   episode,
 }) => {
+  const seasonOptions = useMemo(
+    () =>
+      seasons.map((season) => ({
+        value: season.seasonNumber,
+        label: `Season ${season.seasonNumber}`,
+      })),
+    [seasons]
+  );
+
+  const episodeOptions = useMemo(
+    () =>
+      episodes.map((ep) => ({
+        value: ep.episodeNumber,
+        label: `${ep.episodeNumber}. ${ep.name}`,
+      })),
+    [episodes]
+  );
+
   return (
     <section className="details-episode">
       <h2>Episodes</h2>
@@ -16,33 +35,25 @@ const EpisodePanel = ({
       <div className="details-episode__controls">
         <div className="details-episode__field">
           <label htmlFor="season-select">Season</label>
-          <select
+          <UiSelect
             id="season-select"
-            value={selectedSeason ?? ""}
-            onChange={(e) => onSeasonChange(Number(e.target.value))}
-          >
-            {seasons.map((season) => (
-              <option key={season.seasonNumber} value={season.seasonNumber}>
-                Season {season.seasonNumber}
-              </option>
-            ))}
-          </select>
+            value={selectedSeason}
+            onChange={onSeasonChange}
+            options={seasonOptions}
+            placeholder="Select season"
+          />
         </div>
 
         {episodes.length > 0 && (
           <div className="details-episode__field">
             <label htmlFor="episode-select">Episode</label>
-            <select
+            <UiSelect
               id="episode-select"
-              value={selectedEpisode ?? ""}
-              onChange={(e) => onEpisodeChange(Number(e.target.value))}
-            >
-              {episodes.map((ep) => (
-                <option key={ep.episodeNumber} value={ep.episodeNumber}>
-                  {ep.episodeNumber}. {ep.name}
-                </option>
-              ))}
-            </select>
+              value={selectedEpisode}
+              onChange={onEpisodeChange}
+              options={episodeOptions}
+              placeholder="Select episode"
+            />
           </div>
         )}
       </div>

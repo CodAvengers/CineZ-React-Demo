@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getTvDetails, openEmbed, tvEmbedUrl } from "../../../api";
+import { getTvDetails, tvEmbedUrl } from "../../../api";
 import {
   CastList,
   DetailsHero,
@@ -96,15 +96,6 @@ const TVDetails = () => {
           frameKey={`${id}-${selectedSeason}-${selectedEpisode}`}
           title={`${series.title} Player`}
         />
-        {embedUrl && (
-          <button
-            type="button"
-            className="details-external"
-            onClick={() => openEmbed(embedUrl)}
-          >
-            Open player in new tab
-          </button>
-        )}
       </div>
 
       <EpisodePanel
