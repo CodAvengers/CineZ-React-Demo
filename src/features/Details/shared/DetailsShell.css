@@ -105,7 +105,50 @@
 .details-player-wrap {
   display: flex;
   flex-direction: column;
+  gap: 0.75rem;
   animation: details-reveal 0.55s ease 0.05s both;
+}
+
+.server-switcher {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem 0.85rem;
+}
+
+.server-switcher__label {
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--details-muted);
+}
+
+.server-switcher__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.server-switcher__btn {
+  border: 1px solid var(--details-line);
+  background: rgba(12, 12, 12, 0.72);
+  color: var(--details-muted);
+  border-radius: 999px;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.server-switcher__btn:hover {
+  color: var(--details-text);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.server-switcher__btn.is-active {
+  color: #fff;
+  border-color: color-mix(in srgb, var(--details-accent) 65%, white);
+  background: color-mix(in srgb, var(--details-accent) 28%, #111);
 }
 
 .details-player {

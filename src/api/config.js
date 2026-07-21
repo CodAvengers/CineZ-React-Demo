@@ -1,7 +1,16 @@
 export const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 export const TMDB_BASE_URL = import.meta.env.VITE_TMDB_BASE_URL;
 export const TMDB_IMAGE_BASE_URL = import.meta.env.VITE_TMDB_IMAGE_BASE_URL;
+
+/** @deprecated Prefer VITE_VIDLINK_BASE_URL — kept for backward compatibility */
 export const PLAYBACK_BASE_URL = import.meta.env.VITE_PLAYBACK_BASE_URL;
+
+export const VIDLINK_BASE_URL = import.meta.env.VITE_VIDLINK_BASE_URL;
+export const TWOEMBED_BASE_URL = import.meta.env.VITE_2EMBED_BASE_URL;
+export const SUPEREMBED_BASE_URL = import.meta.env.VITE_SUPEREMBED_BASE_URL;
+export const PLAYBACK_DEFAULT_PROVIDER =
+  import.meta.env.VITE_PLAYBACK_DEFAULT_PROVIDER || "superembed";
+
 
 export const WATCH_PROVIDERS = {
   netflix: 8,

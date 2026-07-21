@@ -1,6 +1,6 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { useParams } from "react-router-dom";
-import { getMovieDetails, movieEmbedUrl } from "../../../api";
+import { getMovieDetails } from "../../../api";
 import {
   CastList,
   DetailsHero,
@@ -8,7 +8,9 @@ import {
   DetailsSection,
   DetailsShell,
   EmbedPlayer,
+  ServerSwitcher,
   useMediaDetails,
+  usePlaybackProvider,
 } from "../shared";
 
 function formatRuntime(runtime) {
@@ -27,7 +29,10 @@ const MovieDetails = () => {
     { fallbackError: "Movie data not found" }
   );
 
-  const embedUrl = useMemo(() => movieEmbedUrl(id), [id]);
+  const { providers, providerId, setProviderId, embedUrl } = usePlaybackProvider({
+    mediaType: "movie",
+    id,
+  });
 
   if (loading) return <DetailsPageSkeleton />;
   if (error) {
@@ -76,9 +81,14 @@ const MovieDetails = () => {
       />
 
       <div className="details-player-wrap">
+        <ServerSwitcher
+          providers={providers}
+          value={providerId}
+          onChange={setProviderId}
+        />
         <EmbedPlayer
           src={embedUrl}
-          frameKey={id}
+          frameKey={`${providerId}-${id}`}
           title={`${movie.title} Player`}
         />
       </div>

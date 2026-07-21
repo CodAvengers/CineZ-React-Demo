@@ -1,11 +1,22 @@
 import React from "react";
 import "./EmbedPlayer.css";
 
-const IFRAME_ALLOW =
-  "autoplay; fullscreen; encrypted-media; picture-in-picture; clipboard-write";
+/**
+ * Nested providers (SuperEmbed / 2Embed) often put the real player in a
+ * child iframe. `fullscreen *` (and friends) delegates permission down the
+ * frame tree — plain `fullscreen` is not enough for those cases.
+ */
+const IFRAME_ALLOW = [
+  "autoplay *",
+  "fullscreen *",
+  "encrypted-media *",
+  "picture-in-picture *",
+  "clipboard-write *",
+  "web-share *",
+].join("; ");
 
 /**
- * Shared vidlink/iframe player used by movie and TV details pages.
+ * Shared iframe player used by movie and TV details pages.
  */
 const EmbedPlayer = ({
   src,
@@ -17,8 +28,7 @@ const EmbedPlayer = ({
     <div className={className}>
       {!src ? (
         <div className="player-error">
-          Playback is unavailable. Check that{" "}
-          <code>VITE_PLAYBACK_BASE_URL</code> is set in your <code>.env</code>.
+          Playback is unavailable. No playback providers are configured.
         </div>
       ) : (
         <iframe
@@ -27,7 +37,9 @@ const EmbedPlayer = ({
           title={title}
           allow={IFRAME_ALLOW}
           allowFullScreen
-          referrerPolicy="origin"
+          // Legacy attribute checks still used by some embed scripts
+          webkitallowfullscreen="true"
+          mozallowfullscreen="true"
         />
       )}
     </div>
