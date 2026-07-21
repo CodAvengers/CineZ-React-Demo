@@ -1,0 +1,14 @@
+.player-error {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 9;
+  padding: 2rem;
+  text-align: center;
+  color: #d4d4d4;
+  background: #121212;
+}
+
+.player-error code {
+  font-size: 0.9em;
+  color: #f2f2f2;
+}

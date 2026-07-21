@@ -1,0 +1,53 @@
+.cast-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  animation: details-reveal 0.55s ease 0.14s both;
+}
+
+.cast-row {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(128px, 148px);
+  gap: 0.9rem;
+  overflow-x: auto;
+  padding-bottom: 0.4rem;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+
+.cast-member {
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.cast-member img,
+.cast-placeholder {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: 8px;
+  background: #2a2a2a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cast-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.cast-info strong {
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.cast-info span {
+  font-size: 0.82rem;
+  color: #a8a8a8;
+  line-height: 1.3;
+}

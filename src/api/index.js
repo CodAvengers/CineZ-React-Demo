@@ -10,7 +10,13 @@ export {
   NETWORKS,
 } from "./config";
 export { imageUrl } from "./mappers";
-export { movieEmbedUrl, tvEmbedUrl } from "./playback";
+export {
+  movieEmbedUrl,
+  tvEmbedUrl,
+  openEmbed,
+  isPlaybackConfigured,
+  DEFAULT_EMBED_THEME,
+} from "./playback";
 export {
   getPopularMovies,
   getTrendingMovies,
