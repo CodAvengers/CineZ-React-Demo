@@ -3,6 +3,9 @@ export {
   TMDB_BASE_URL,
   TMDB_IMAGE_BASE_URL,
   PLAYBACK_BASE_URL,
+  VIDLINK_BASE_URL,
+  TWOEMBED_BASE_URL,
+  PLAYBACK_DEFAULT_PROVIDER,
   MOVIE_GENRES,
   TV_GENRES,
   GENRE_MAP,
@@ -16,6 +19,10 @@ export {
   openEmbed,
   isPlaybackConfigured,
   DEFAULT_EMBED_THEME,
+  getDefaultProviderId,
+  getProvider,
+  listPlaybackProviders,
+  PLAYBACK_PROVIDERS,
 } from "./playback";
 export {
   getPopularMovies,

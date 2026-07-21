@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getTvDetails, tvEmbedUrl } from "../../../api";
+import { getTvDetails } from "../../../api";
 import {
   CastList,
   DetailsHero,
@@ -9,7 +9,9 @@ import {
   DetailsShell,
   EmbedPlayer,
   EpisodePanel,
+  ServerSwitcher,
   useMediaDetails,
+  usePlaybackProvider,
   useTvSeasonEpisodes,
 } from "../shared";
 
@@ -36,10 +38,12 @@ const TVDetails = () => {
     Boolean(series && selectedSeason)
   );
 
-  const embedUrl = useMemo(
-    () => tvEmbedUrl(id, selectedSeason, selectedEpisode),
-    [id, selectedSeason, selectedEpisode]
-  );
+  const { providers, providerId, setProviderId, embedUrl } = usePlaybackProvider({
+    mediaType: "tv",
+    id,
+    season: selectedSeason,
+    episode: selectedEpisode,
+  });
 
   const selectedEpisodeData = episodes.find(
     (ep) => ep.episodeNumber === selectedEpisode
@@ -91,9 +95,14 @@ const TVDetails = () => {
       />
 
       <div className="details-player-wrap">
+        <ServerSwitcher
+          providers={providers}
+          value={providerId}
+          onChange={setProviderId}
+        />
         <EmbedPlayer
           src={embedUrl}
-          frameKey={`${id}-${selectedSeason}-${selectedEpisode}`}
+          frameKey={`${providerId}-${id}-${selectedSeason}-${selectedEpisode}`}
           title={`${series.title} Player`}
         />
       </div>

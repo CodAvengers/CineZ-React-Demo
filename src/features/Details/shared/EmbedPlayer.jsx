@@ -5,7 +5,7 @@ const IFRAME_ALLOW =
   "autoplay; fullscreen; encrypted-media; picture-in-picture; clipboard-write";
 
 /**
- * Shared vidlink/iframe player used by movie and TV details pages.
+ * Shared iframe player used by movie and TV details pages.
  */
 const EmbedPlayer = ({
   src,
@@ -17,8 +17,7 @@ const EmbedPlayer = ({
     <div className={className}>
       {!src ? (
         <div className="player-error">
-          Playback is unavailable. Check that{" "}
-          <code>VITE_PLAYBACK_BASE_URL</code> is set in your <code>.env</code>.
+          Playback is unavailable. No playback providers are configured.
         </div>
       ) : (
         <iframe
