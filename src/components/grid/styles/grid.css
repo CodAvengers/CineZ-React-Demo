@@ -320,6 +320,24 @@
   border-radius: 8px 8px 0 0;
 }
 
+/* Bleed info panel color up into the poster (banner / genre style) */
+.movie-poster::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 30%;
+  background: linear-gradient(
+    to top,
+    #1a1a1a 0%,
+    rgba(26, 26, 26, 0.72) 35%,
+    rgba(26, 26, 26, 0) 100%
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
 .movie-poster img {
   position: absolute;
   top: 0;
@@ -329,6 +347,7 @@
   object-fit: cover;
   transition: opacity 0.35s ease;
   border-radius: 8px 8px 0 0;
+  z-index: 0;
 }
 
 .movie-poster img.media-fade.is-loaded:hover {
@@ -351,8 +370,12 @@
 }
 
 .movie-info {
+  position: relative;
+  z-index: 1;
   padding: 6px 10px 10px;
   background-color: #1a1a1a;
+  /* Soft handoff so the panel reads continuous with the poster fade */
+  margin-top: -1px;
 }
 
 .movie-title {
