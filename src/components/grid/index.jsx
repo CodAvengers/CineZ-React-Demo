@@ -7,10 +7,45 @@ import { useImageLoaded } from "../../hooks/useImageLoaded";
 import { MovieCardSkeleton, MovieRowSkeleton } from "../Skeleton";
 import "../Skeleton/styles/skeleton.css";
 
+const STACK_PREVIEW = 8;
+const DRAG_THRESHOLD_PX = 8;
+const STEP_DURATION_MS = 240;
+
 function getRatingClass(rating) {
   if (rating >= 8) return "high";
   if (rating >= 5) return "medium";
   return "low";
+}
+
+function dataSignature(items) {
+  return items.map((item) => item.id).join(",");
+}
+
+function rotateForward(deck, slots) {
+  if (deck.length <= slots) return deck;
+  const next = [...deck];
+  const [card] = next.splice(slots, 1);
+  next.unshift(card);
+  return next;
+}
+
+function rotateBackward(deck, slots) {
+  if (deck.length <= slots) return deck;
+  const next = [...deck];
+  const [card] = next.splice(0, 1);
+  next.splice(slots, 0, card);
+  return next;
+}
+
+function stepsFromGesture(dx, dtMs) {
+  const absDx = Math.abs(dx);
+  const velocity = absDx / Math.max(dtMs, 1);
+
+  if (absDx < 28 && velocity < 0.35) return 0;
+
+  if (velocity > 1.2 || absDx > 180) return 3;
+  if (velocity > 0.6 || absDx > 90) return 2;
+  return 1;
 }
 
 function MovieCard({ item, onItemClick }) {
@@ -53,6 +88,7 @@ function MovieCard({ item, onItemClick }) {
               onLoad={markLoaded}
               onError={handleImageError}
               loading="lazy"
+              draggable={false}
             />
           </>
         ) : (
@@ -74,6 +110,101 @@ function MovieCard({ item, onItemClick }) {
   );
 }
 
+function StackPoster({ item }) {
+  const [imageError, setImageError] = useState(false);
+  const [currentImage, setCurrentImage] = useState(
+    () => item.posterUrl || item.backdropUrl || null
+  );
+  const { imgRef, loaded: imageLoaded, markLoaded } =
+    useImageLoaded(currentImage);
+
+  useEffect(() => {
+    setImageError(false);
+    setCurrentImage(item.posterUrl || item.backdropUrl || null);
+  }, [item.id, item.posterUrl, item.backdropUrl]);
+
+  const handleImageError = () => {
+    if (item.posterUrlSmall && currentImage !== item.posterUrlSmall) {
+      setCurrentImage(item.posterUrlSmall);
+      setImageError(false);
+    } else {
+      setImageError(true);
+    }
+  };
+
+  const titleText = item.title || "NA";
+  const initials = titleText.substring(0, 2).toUpperCase();
+
+  return (
+    <div className="album-stack__poster">
+      {!imageError && currentImage ? (
+        <>
+          {!imageLoaded && <div className="skeleton skeleton--fill" />}
+          <img
+            ref={imgRef}
+            src={currentImage}
+            alt=""
+            className={`media-fade${imageLoaded ? " is-loaded" : ""}`}
+            onLoad={markLoaded}
+            onError={handleImageError}
+            loading="lazy"
+            draggable={false}
+          />
+        </>
+      ) : (
+        <div className="poster-placeholder">{initials}</div>
+      )}
+    </div>
+  );
+}
+
+function AlbumStack({ items, overflowCount = 0, onFrontClick }) {
+  if (!items.length) return null;
+
+  const front = items[0];
+  // Render back-to-front so the first item sits on top
+  const layers = [...items].reverse();
+
+  return (
+    <div
+      className="album-stack"
+      role="button"
+      tabIndex={0}
+      aria-label={`${front.title || "More titles"}, ${overflowCount + items.length} in stack`}
+      onClick={() => onFrontClick?.(front)}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onFrontClick?.(front);
+        }
+      }}
+    >
+      <div className="album-stack__layers">
+        {layers.map((item, index) => {
+          const depth = items.length - 1 - index;
+          return (
+            <div
+              key={item.id}
+              className="album-stack__layer"
+              style={{ "--stack-depth": depth }}
+              aria-hidden={depth !== 0}
+            >
+              <StackPoster item={item} />
+            </div>
+          );
+        })}
+        {overflowCount > 0 && (
+          <span className="album-stack__badge" aria-hidden="true">
+            +{overflowCount}
+          </span>
+        )}
+      </div>
+      {/* Matches .movie-info height so the row stays aligned */}
+      <div className="album-stack__foot" aria-hidden="true" />
+    </div>
+  );
+}
+
 const Grid = ({
   data = [],
   loading = false,
@@ -91,10 +222,42 @@ const Grid = ({
   const measureRef = useRef(null);
   const itemsPerRow = useFitPerRow(measureRef, movieRowMetrics);
 
-  const visibleData = useMemo(() => {
+  const [deck, setDeck] = useState(() => data);
+  const [animating, setAnimating] = useState(false);
+  const suppressClickRef = useRef(false);
+  const gestureRef = useRef(null);
+  const animTimerRef = useRef(null);
+  const dataKeyRef = useRef(`${currentPage}:${dataSignature(data)}`);
+
+  useEffect(() => {
+    const key = `${currentPage}:${dataSignature(data)}`;
+    if (dataKeyRef.current === key) return;
+    dataKeyRef.current = key;
+    setDeck(data);
+  }, [data, currentPage]);
+
+  const slots = useMemo(() => {
+    if (!singleRow) return data.length;
+    return Math.max(1, itemsPerRow - 1);
+  }, [singleRow, itemsPerRow, data.length]);
+
+  const hasStack = singleRow && deck.length > slots;
+  const fullCards = useMemo(() => {
     if (!singleRow) return data;
-    return data.slice(0, itemsPerRow);
-  }, [data, singleRow, itemsPerRow]);
+    if (!hasStack) return deck.slice(0, itemsPerRow);
+    return deck.slice(0, slots);
+  }, [singleRow, data, deck, hasStack, itemsPerRow, slots]);
+
+  const stackCards = useMemo(() => {
+    if (!hasStack) return [];
+    return deck.slice(slots, slots + STACK_PREVIEW);
+  }, [hasStack, deck, slots]);
+
+  const overflowCount = hasStack
+    ? Math.max(0, deck.length - slots - stackCards.length)
+    : 0;
+
+  const gridItemCount = hasStack ? slots + 1 : Math.max(fullCards.length, 1);
 
   const skeletonCount = singleRow
     ? Math.max(itemsPerRow, 4)
@@ -116,6 +279,141 @@ const Grid = ({
       navigate(`/view-all/${formattedTitle}`);
     }
   }, [title, mediaType, navigate]);
+
+  const handleItemClick = useCallback(
+    (item) => {
+      if (suppressClickRef.current) return;
+      onItemClick?.(item);
+    },
+    [onItemClick]
+  );
+
+  const runRotation = useCallback(
+    (direction, steps) => {
+      if (!hasStack || steps <= 0 || animating) return;
+
+      const reduceMotion =
+        typeof window !== "undefined" &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      const apply = (count) => {
+        setDeck((prev) => {
+          let next = prev;
+          for (let i = 0; i < count; i += 1) {
+            next =
+              direction === "forward"
+                ? rotateForward(next, slots)
+                : rotateBackward(next, slots);
+          }
+          return next;
+        });
+      };
+
+      if (reduceMotion) {
+        apply(steps);
+        return;
+      }
+
+      setAnimating(true);
+      apply(steps);
+      if (animTimerRef.current) clearTimeout(animTimerRef.current);
+      animTimerRef.current = setTimeout(() => {
+        setAnimating(false);
+        animTimerRef.current = null;
+      }, STEP_DURATION_MS);
+    },
+    [hasStack, animating, slots]
+  );
+
+  useEffect(
+    () => () => {
+      if (animTimerRef.current) clearTimeout(animTimerRef.current);
+    },
+    []
+  );
+
+  const onPointerDown = useCallback(
+    (event) => {
+      if (!hasStack || event.button != null && event.button !== 0) return;
+      gestureRef.current = {
+        pointerId: event.pointerId,
+        startX: event.clientX,
+        startY: event.clientY,
+        startTime: performance.now(),
+        lastX: event.clientX,
+        axis: null,
+        dragged: false,
+      };
+      suppressClickRef.current = false;
+    },
+    [hasStack]
+  );
+
+  const onPointerMove = useCallback(
+    (event) => {
+      const gesture = gestureRef.current;
+      if (!gesture || gesture.pointerId !== event.pointerId) return;
+
+      const dx = event.clientX - gesture.startX;
+      const dy = event.clientY - gesture.startY;
+
+      if (!gesture.axis) {
+        if (Math.abs(dx) < DRAG_THRESHOLD_PX && Math.abs(dy) < DRAG_THRESHOLD_PX) {
+          return;
+        }
+        gesture.axis = Math.abs(dx) >= Math.abs(dy) ? "x" : "y";
+        if (gesture.axis === "x") {
+          event.currentTarget.setPointerCapture?.(event.pointerId);
+        }
+      }
+
+      if (gesture.axis === "y") return;
+
+      event.preventDefault();
+      gesture.lastX = event.clientX;
+      if (Math.abs(dx) >= DRAG_THRESHOLD_PX) {
+        gesture.dragged = true;
+        suppressClickRef.current = true;
+      }
+    },
+    []
+  );
+
+  const finishGesture = useCallback(
+    (event) => {
+      const gesture = gestureRef.current;
+      if (!gesture || gesture.pointerId !== event.pointerId) return;
+
+      const dx = event.clientX - gesture.startX;
+      const dt = performance.now() - gesture.startTime;
+      const wasHorizontal = gesture.axis === "x" && gesture.dragged;
+
+      try {
+        event.currentTarget.releasePointerCapture?.(event.pointerId);
+      } catch {
+        /* already released */
+      }
+      gestureRef.current = null;
+
+      if (!wasHorizontal) {
+        // Allow click; clear suppress on next tick if it was a tiny move
+        if (!gesture.dragged) suppressClickRef.current = false;
+        return;
+      }
+
+      const steps = stepsFromGesture(dx, dt);
+      if (steps > 0) {
+        // Swipe left (negative dx) advances stack → first slot
+        runRotation(dx < 0 ? "forward" : "backward", steps);
+      }
+
+      // Keep clicks suppressed until after the click event from this gesture
+      requestAnimationFrame(() => {
+        suppressClickRef.current = false;
+      });
+    },
+    [runRotation]
+  );
 
   return (
     <div className="movies-container">
@@ -200,7 +498,7 @@ const Grid = ({
       <div className="movies-grid-measure" ref={measureRef}>
         {loading ? (
           singleRow ? (
-            <MovieRowSkeleton count={skeletonCount} />
+            <MovieRowSkeleton count={skeletonCount} showStack />
           ) : (
             <div className="movies-grid" aria-busy="true">
               {Array.from({ length: skeletonCount }, (_, i) => (
@@ -210,16 +508,38 @@ const Grid = ({
           )
         ) : (
           <div
-            className={`movies-grid${singleRow ? " movies-grid--single-row" : ""}`}
+            className={[
+              "movies-grid",
+              singleRow ? "movies-grid--single-row" : "",
+              hasStack ? "movies-grid--album-carousel" : "",
+              animating ? "movies-grid--rotating" : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
             style={
               singleRow
-                ? { "--items-per-row": Math.max(visibleData.length, 1) }
+                ? { "--items-per-row": gridItemCount }
                 : undefined
             }
+            onPointerDown={hasStack ? onPointerDown : undefined}
+            onPointerMove={hasStack ? onPointerMove : undefined}
+            onPointerUp={hasStack ? finishGesture : undefined}
+            onPointerCancel={hasStack ? finishGesture : undefined}
           >
-            {visibleData.map((item) => (
-              <MovieCard key={item.id} item={item} onItemClick={onItemClick} />
+            {fullCards.map((item) => (
+              <MovieCard
+                key={item.id}
+                item={item}
+                onItemClick={handleItemClick}
+              />
             ))}
+            {hasStack && (
+              <AlbumStack
+                items={stackCards}
+                overflowCount={overflowCount}
+                onFrontClick={handleItemClick}
+              />
+            )}
           </div>
         )}
       </div>

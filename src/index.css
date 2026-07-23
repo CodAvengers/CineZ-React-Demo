@@ -9,6 +9,8 @@ body {
   background-color: rgb(20, 20, 20);
   margin: 0;
   font-family: "Roboto", sans-serif;
+  /* Album stack peeks past the content edge without creating a page scrollbar */
+  overflow-x: clip;
 }
 
 .home-movies-container {
@@ -17,4 +19,5 @@ body {
   margin-inline: auto;
   padding-inline: var(--page-gutter);
   box-sizing: border-box;
+  overflow: visible;
 }
