@@ -12,13 +12,15 @@ See [CHANGELOG.md](./CHANGELOG.md) for recent updates.
 
 ## Tech stack
 
-| Layer | Choice |
-|--------|--------|
-| UI | React 19 + Vite 6 |
-| Routing | React Router 7 |
-| Styling | Component CSS + shared layout tokens (`src/styles/layout.css`); light Tailwind |
-| Data | TMDB REST (via `src/api/`) |
-| Playback | vidlink.pro iframe embeds |
+
+| Layer    | Choice                                                                         |
+| -------- | ------------------------------------------------------------------------------ |
+| UI       | React 19 + Vite 6                                                              |
+| Routing  | React Router 7                                                                 |
+| Styling  | Component CSS + shared layout tokens (`src/styles/layout.css`); light Tailwind |
+| Data     | TMDB REST (via `src/api/`)                                                     |
+| Playback | vidlink.pro iframe embeds                                                      |
+
 
 ---
 
@@ -59,7 +61,7 @@ cd CineZ-React-Demo
 npm install
 ```
 
-2. **Environment**
+1. **Environment**
 
 Copy `.env.example` to `.env` and fill in values:
 
@@ -67,16 +69,18 @@ Copy `.env.example` to `.env` and fill in values:
 cp .env.example .env
 ```
 
-| Variable | Description |
-|----------|-------------|
-| `VITE_TMDB_API_KEY` | TMDB API key ([get one](https://www.themoviedb.org/settings/api)) |
-| `VITE_TMDB_BASE_URL` | TMDB API base (e.g. `https://api.themoviedb.org/3`) |
-| `VITE_TMDB_IMAGE_BASE_URL` | Image CDN base (e.g. `https://image.tmdb.org/t/p`) |
-| `VITE_PLAYBACK_BASE_URL` | Embed player base (e.g. `https://vidlink.pro`) |
+
+| Variable                   | Description                                                       |
+| -------------------------- | ----------------------------------------------------------------- |
+| `VITE_TMDB_API_KEY`        | TMDB API key ([get one](https://www.themoviedb.org/settings/api)) |
+| `VITE_TMDB_BASE_URL`       | TMDB API base (e.g. `https://api.themoviedb.org/3`)               |
+| `VITE_TMDB_IMAGE_BASE_URL` | Image CDN base (e.g. `https://image.tmdb.org/t/p`)                |
+| `VITE_PLAYBACK_BASE_URL`   | Embed player base (e.g. `https://vidlink.pro`)                    |
+
 
 `.env` is gitignored. Restart the dev server after changing env vars.
 
-3. **Run**
+1. **Run**
 
 ```bash
 npm run dev
@@ -88,19 +92,23 @@ Other scripts: `npm run build`, `npm run preview`, `npm run lint`.
 
 ## Routes
 
-| Path | Screen |
-|------|--------|
-| `/` | Home |
-| `/movies` | Movies |
-| `/tv-shows` | TV shows |
-| `/movie/:id` | Movie details + player |
-| `/tv/:id` | TV details + player |
-| `/search?query=` | Search results |
+
+| Path                 | Screen                               |
+| -------------------- | ------------------------------------ |
+| `/`                  | Home                                 |
+| `/movies`            | Movies                               |
+| `/tv-shows`          | TV shows                             |
+| `/movie/:id`         | Movie details + player               |
+| `/tv/:id`            | TV details + player                  |
+| `/search?query=`     | Search results                       |
 | `/view-all/:section` | Full section / genre / platform list |
+
 
 ---
 
 ## Notes
 
 - This is a **frontend demo**: no real auth, playlists, or backend yet. Login UI (if shown) is cosmetic.
-- `VITE_*` values are exposed in the client bundle; keep TMDB key restrictions configured in the TMDB dashboard when you deploy.
+- `VITE_*` values are exposed in the client bundle; keep TMDB key restrictions configured in the TMDB dashboard when you deploy.  
+Test auto deploys
+
