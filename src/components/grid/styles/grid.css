@@ -146,6 +146,92 @@
   animation: album-carousel-settle 240ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* Hide settled cards while solitaire flyers travel stack → slots */
+.movies-grid--dealing > .movie-card,
+.movies-grid--dealing > .album-stack {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.deal-flyer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 500;
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #333;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+  background: #1a1a1a;
+  pointer-events: none;
+  transform-origin: top left;
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.deal-flyer__art {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  background: #1a1a1a;
+}
+
+.deal-flyer__art::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 42%;
+  background: linear-gradient(
+    to top,
+    #1a1a1a 0%,
+    rgba(26, 26, 26, 0.72) 35%,
+    rgba(26, 26, 26, 0) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.deal-flyer img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.deal-flyer__placeholder {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  font-size: 28px;
+  font-weight: 700;
+  color: #999;
+  background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+}
+
+.deal-flyer__meta {
+  position: relative;
+  z-index: 2;
+  flex: 0 0 auto;
+  padding: 6px 10px 10px;
+  background: #1a1a1a;
+}
+
+.deal-flyer__meta .movie-title {
+  margin: 0 0 2px;
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+.deal-flyer__meta .movie-meta {
+  margin-top: 4px;
+}
+
 @keyframes album-carousel-settle {
   from {
     opacity: 0.72;
@@ -161,6 +247,10 @@
   .movies-grid--rotating .movie-card,
   .movies-grid--rotating .album-stack {
     animation: none;
+  }
+
+  .deal-flyer {
+    transition: none !important;
   }
 }
 

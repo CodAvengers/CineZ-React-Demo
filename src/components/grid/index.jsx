@@ -1,4 +1,11 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import "./styles/grid.css";
 import StarHalfIcon from "@mui/icons-material/StarHalf";
 import { useNavigate } from "react-router-dom";
@@ -9,7 +16,16 @@ import "../Skeleton/styles/skeleton.css";
 
 const STACK_PREVIEW = 8;
 const DRAG_THRESHOLD_PX = 8;
-const STEP_DURATION_MS = 240;
+const STEP_DURATION_MS = 280;
+const DEAL_DURATION_MS = 520;
+const DEAL_STAGGER_MS = 70;
+
+function prefersReducedMotion() {
+  return (
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+}
 
 function getRatingClass(rating) {
   if (rating >= 8) return "high";
@@ -18,7 +34,7 @@ function getRatingClass(rating) {
 }
 
 function dataSignature(items) {
-  return items.map((item) => item.id).join(",");
+  return items.map((item) => item?.id).join(",");
 }
 
 function rotateForward(deck, slots) {
@@ -37,6 +53,19 @@ function rotateBackward(deck, slots) {
   return next;
 }
 
+/** Rotate the deck so the next hand (currently in the stack) becomes the slots. */
+function rotateHandForward(deck, slots) {
+  if (deck.length <= slots) return deck;
+  return [...deck.slice(slots), ...deck.slice(0, slots)];
+}
+
+function rotateHandBackward(deck, slots) {
+  if (deck.length <= slots) return deck;
+  const n = deck.length;
+  const take = Math.min(slots, n - slots);
+  return [...deck.slice(n - take), ...deck.slice(0, n - take)];
+}
+
 function stepsFromGesture(dx, dtMs) {
   const absDx = Math.abs(dx);
   const velocity = absDx / Math.max(dtMs, 1);
@@ -48,17 +77,19 @@ function stepsFromGesture(dx, dtMs) {
   return 1;
 }
 
-function MovieCard({ item, onItemClick }) {
+function posterUrlFor(item) {
+  return item?.posterUrl || item?.backdropUrl || item?.posterUrlSmall || null;
+}
+
+const MovieCard = forwardRef(function MovieCard({ item, onItemClick }, ref) {
   const [imageError, setImageError] = useState(false);
-  const [currentImage, setCurrentImage] = useState(
-    () => item.posterUrl || item.backdropUrl || null
-  );
+  const [currentImage, setCurrentImage] = useState(() => posterUrlFor(item));
   const { imgRef, loaded: imageLoaded, markLoaded } =
     useImageLoaded(currentImage);
 
   useEffect(() => {
     setImageError(false);
-    setCurrentImage(item.posterUrl || item.backdropUrl || null);
+    setCurrentImage(posterUrlFor(item));
   }, [item.id, item.posterUrl, item.backdropUrl]);
 
   const handleImageError = () => {
@@ -75,7 +106,11 @@ function MovieCard({ item, onItemClick }) {
   const rating = item.rating ?? 0;
 
   return (
-    <div className="movie-card" onClick={() => onItemClick?.(item)}>
+    <div
+      ref={ref}
+      className="movie-card"
+      onClick={() => onItemClick?.(item)}
+    >
       <div className="movie-poster">
         {!imageError && currentImage ? (
           <>
@@ -108,19 +143,17 @@ function MovieCard({ item, onItemClick }) {
       </div>
     </div>
   );
-}
+});
 
 function StackPoster({ item }) {
   const [imageError, setImageError] = useState(false);
-  const [currentImage, setCurrentImage] = useState(
-    () => item.posterUrl || item.backdropUrl || null
-  );
+  const [currentImage, setCurrentImage] = useState(() => posterUrlFor(item));
   const { imgRef, loaded: imageLoaded, markLoaded } =
     useImageLoaded(currentImage);
 
   useEffect(() => {
     setImageError(false);
-    setCurrentImage(item.posterUrl || item.backdropUrl || null);
+    setCurrentImage(posterUrlFor(item));
   }, [item.id, item.posterUrl, item.backdropUrl]);
 
   const handleImageError = () => {
@@ -158,15 +191,18 @@ function StackPoster({ item }) {
   );
 }
 
-function AlbumStack({ items, overflowCount = 0, onFrontClick }) {
+const AlbumStack = forwardRef(function AlbumStack(
+  { items, overflowCount = 0, onFrontClick },
+  ref
+) {
   if (!items.length) return null;
 
   const front = items[0];
-  // Render back-to-front so the first item sits on top
   const layers = [...items].reverse();
 
   return (
     <div
+      ref={ref}
       className="album-stack"
       role="button"
       tabIndex={0}
@@ -186,6 +222,7 @@ function AlbumStack({ items, overflowCount = 0, onFrontClick }) {
             <div
               key={item.id}
               className="album-stack__layer"
+              data-stack-depth={depth}
               style={{ "--stack-depth": depth }}
               aria-hidden={depth !== 0}
             >
@@ -201,6 +238,99 @@ function AlbumStack({ items, overflowCount = 0, onFrontClick }) {
       </div>
     </div>
   );
+});
+
+function DealFlyer({ flight }) {
+  const [onTable, setOnTable] = useState(false);
+  const url = posterUrlFor(flight.item);
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => {
+      requestAnimationFrame(() => setOnTable(true));
+    });
+    return () => cancelAnimationFrame(id);
+  }, []);
+
+  const titleText = flight.item.title || "";
+  const initials = titleText.substring(0, 2).toUpperCase() || "?";
+  const rating = flight.item.rating ?? 0;
+
+  const scaleX = flight.to.w / Math.max(flight.from.w, 1);
+  const scaleY = flight.to.h / Math.max(flight.from.h, 1);
+
+  return (
+    <div
+      className={`deal-flyer${onTable ? " is-dealt" : ""}`}
+      style={{
+        width: flight.from.w,
+        height: flight.from.h,
+        transform: onTable
+          ? `translate(${flight.to.x}px, ${flight.to.y}px) scale(${scaleX}, ${scaleY})`
+          : `translate(${flight.from.x}px, ${flight.from.y}px)`,
+        transitionDuration: `${DEAL_DURATION_MS}ms`,
+        transitionDelay: `${flight.delay}ms`,
+        zIndex: flight.zIndex,
+      }}
+      aria-hidden="true"
+    >
+      <div className="deal-flyer__art">
+        {url ? (
+          <img src={url} alt="" draggable={false} />
+        ) : (
+          <div className="deal-flyer__placeholder">{initials}</div>
+        )}
+      </div>
+      <div className="deal-flyer__meta">
+        <div className="movie-title">{titleText}</div>
+        {rating > 0 && (
+          <div className="movie-meta">
+            <span className={`movie-rating ${getRatingClass(rating)}`}>
+              <StarHalfIcon style={{ fontSize: "14px" }} />
+              {rating.toFixed(1)}/10
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function buildHandDealFlights(dealItems, stackEl, slotEls) {
+  if (!stackEl || !dealItems.length) return [];
+
+  const stackRect = stackEl.getBoundingClientRect();
+
+  return dealItems
+    .map((item, index) => {
+      const slotEl = slotEls[index];
+      if (!slotEl) return null;
+
+      const layer =
+        stackEl.querySelector(`[data-stack-depth="${index}"]`) ||
+        stackEl.querySelector('[data-stack-depth="0"]');
+      const fromRect = (layer || stackEl).getBoundingClientRect();
+      const toRect = slotEl.getBoundingClientRect();
+
+      return {
+        key: `deal-${item.id}-${index}`,
+        item,
+        from: {
+          x: fromRect.left,
+          y: fromRect.top,
+          w: Math.max(fromRect.width, 40),
+          h: Math.max(fromRect.height, 40),
+        },
+        to: {
+          x: toRect.left,
+          y: toRect.top,
+          w: Math.max(toRect.width, 40),
+          h: Math.max(toRect.height, 40),
+        },
+        delay: index * DEAL_STAGGER_MS,
+        zIndex: 500 - index,
+      };
+    })
+    .filter(Boolean);
 }
 
 const Grid = ({
@@ -221,25 +351,44 @@ const Grid = ({
   const itemsPerRow = useFitPerRow(measureRef, movieRowMetrics);
 
   const [deck, setDeck] = useState(() => data);
+  const [handIndex, setHandIndex] = useState(0);
   const [animating, setAnimating] = useState(false);
+  const [dealFlights, setDealFlights] = useState(null);
   const suppressClickRef = useRef(false);
   const gestureRef = useRef(null);
   const animTimerRef = useRef(null);
-  const dataKeyRef = useRef(`${currentPage}:${dataSignature(data)}`);
+  const dealTimerRef = useRef(null);
+  const sourceSigRef = useRef(dataSignature(data));
+  const slotRefs = useRef([]);
+  const stackRef = useRef(null);
 
+  const isDealing = Boolean(dealFlights?.length);
+
+  // Resync when parent fetches a new list (API page / refresh)
   useEffect(() => {
-    const key = `${currentPage}:${dataSignature(data)}`;
-    if (dataKeyRef.current === key) return;
-    dataKeyRef.current = key;
+    const sig = dataSignature(data);
+    if (sig === sourceSigRef.current) return;
+    sourceSigRef.current = sig;
     setDeck(data);
-  }, [data, currentPage]);
+    setHandIndex(0);
+    setDealFlights(null);
+  }, [data]);
+
+  useEffect(
+    () => () => {
+      if (animTimerRef.current) clearTimeout(animTimerRef.current);
+      if (dealTimerRef.current) clearTimeout(dealTimerRef.current);
+    },
+    []
+  );
 
   const slots = useMemo(() => {
-    if (!singleRow) return data.length;
+    if (!singleRow) return Math.max(data.length, 1);
     return Math.max(1, itemsPerRow - 1);
   }, [singleRow, itemsPerRow, data.length]);
 
   const hasStack = singleRow && deck.length > slots;
+
   const fullCards = useMemo(() => {
     if (!singleRow) return data;
     if (!hasStack) return deck.slice(0, itemsPerRow);
@@ -256,6 +405,15 @@ const Grid = ({
     : 0;
 
   const gridItemCount = hasStack ? slots + 1 : Math.max(fullCards.length, 1);
+
+  // Hands within the current list (album stack → next row)
+  const totalHands = useMemo(() => {
+    if (!singleRow || !hasStack) return Math.max(totalPages, 1);
+    return Math.max(1, Math.ceil(deck.length / slots));
+  }, [singleRow, hasStack, deck.length, slots, totalPages]);
+
+  const visiblePageCount = Math.min(totalHands, 4);
+  const activeHand = Math.min(handIndex, totalHands - 1);
 
   const skeletonCount = singleRow
     ? Math.max(itemsPerRow, 4)
@@ -280,19 +438,214 @@ const Grid = ({
 
   const handleItemClick = useCallback(
     (item) => {
-      if (suppressClickRef.current) return;
+      if (suppressClickRef.current || isDealing) return;
       onItemClick?.(item);
     },
-    [onItemClick]
+    [onItemClick, isDealing]
+  );
+
+  const finishDeal = useCallback((nextDeck, nextHand) => {
+    setDeck(nextDeck);
+    setHandIndex(nextHand);
+    setDealFlights(null);
+  }, []);
+
+  /**
+   * Solitaire hand deal: album stack cards 0..n fly into slots 0..n,
+   * then the deck rotates so those cards become the new row.
+   */
+  const dealHand = useCallback(
+    (direction) => {
+      if (!hasStack || isDealing || animating) return false;
+
+      const nextHand =
+        direction === "forward"
+          ? (activeHand + 1) % totalHands
+          : (activeHand - 1 + totalHands) % totalHands;
+
+      if (nextHand === activeHand) return false;
+
+      const nextDeck =
+        direction === "forward"
+          ? rotateHandForward(deck, slots)
+          : rotateHandBackward(deck, slots);
+
+      const dealItems =
+        direction === "forward"
+          ? deck.slice(slots, slots + slots)
+          : nextDeck.slice(0, slots);
+
+      if (prefersReducedMotion()) {
+        finishDeal(nextDeck, nextHand);
+        return true;
+      }
+
+      const slotEls = slotRefs.current.slice(0, slots).filter(Boolean);
+      const stackEl = stackRef.current;
+
+      if (!stackEl || slotEls.length < dealItems.length) {
+        finishDeal(nextDeck, nextHand);
+        return true;
+      }
+
+      // Forward: fly the current stack cards into the slots.
+      // Backward: fly from slots back isn't needed — deal upcoming hand from stack area
+      // using the cards that will land (measure stack layers as origin).
+      const flights = buildHandDealFlights(
+        direction === "forward" ? dealItems : dealItems,
+        stackEl,
+        slotEls
+      );
+
+      if (!flights.length) {
+        finishDeal(nextDeck, nextHand);
+        return true;
+      }
+
+      setDealFlights(flights);
+
+      const totalMs =
+        DEAL_DURATION_MS +
+        Math.max(0, flights.length - 1) * DEAL_STAGGER_MS +
+        60;
+
+      if (dealTimerRef.current) clearTimeout(dealTimerRef.current);
+      dealTimerRef.current = setTimeout(() => {
+        finishDeal(nextDeck, nextHand);
+        dealTimerRef.current = null;
+      }, totalMs);
+
+      return true;
+    },
+    [
+      hasStack,
+      isDealing,
+      animating,
+      activeHand,
+      totalHands,
+      deck,
+      slots,
+      finishDeal,
+    ]
+  );
+
+  const goToHand = useCallback(
+    (hand) => {
+      if (hand === activeHand || isDealing || animating) return;
+      if (hand < 0 || hand >= totalHands) return;
+
+      const direction = hand > activeHand ? "forward" : "backward";
+
+      // Animate one step toward the target; further jumps snap after that deal
+      if (Math.abs(hand - activeHand) === 1) {
+        dealHand(direction);
+        return;
+      }
+
+      if (!hasStack || prefersReducedMotion()) {
+        let next = deck;
+        const step = hand > activeHand ? 1 : -1;
+        let idx = activeHand;
+        while (idx !== hand) {
+          next =
+            step > 0
+              ? rotateHandForward(next, slots)
+              : rotateHandBackward(next, slots);
+          idx += step;
+        }
+        finishDeal(next, hand);
+        return;
+      }
+
+      const slotEls = slotRefs.current.slice(0, slots).filter(Boolean);
+      const stackEl = stackRef.current;
+      const dealItems =
+        direction === "forward"
+          ? deck.slice(slots, slots + slots)
+          : rotateHandBackward(deck, slots).slice(0, slots);
+
+      let next = deck;
+      const step = hand > activeHand ? 1 : -1;
+      let idx = activeHand;
+      while (idx !== hand) {
+        next =
+          step > 0
+            ? rotateHandForward(next, slots)
+            : rotateHandBackward(next, slots);
+        idx += step;
+      }
+
+      const flights = buildHandDealFlights(dealItems, stackEl, slotEls);
+      if (!flights.length) {
+        finishDeal(next, hand);
+        return;
+      }
+
+      setDealFlights(flights);
+      const totalMs =
+        DEAL_DURATION_MS +
+        Math.max(0, flights.length - 1) * DEAL_STAGGER_MS +
+        60;
+      if (dealTimerRef.current) clearTimeout(dealTimerRef.current);
+      dealTimerRef.current = setTimeout(() => {
+        finishDeal(next, hand);
+        dealTimerRef.current = null;
+      }, totalMs);
+    },
+    [
+      activeHand,
+      isDealing,
+      animating,
+      totalHands,
+      dealHand,
+      hasStack,
+      deck,
+      slots,
+      finishDeal,
+    ]
+  );
+
+  const beginPageChange = useCallback(
+    (nextPage) => {
+      if (loading || isDealing) return;
+
+      // Single-row + album stack: pagination deals the next hand from the stack
+      if (singleRow && hasStack) {
+        const targetHand = nextPage - 1;
+        if (targetHand === activeHand) return;
+        if (targetHand > activeHand) {
+          if (targetHand === activeHand + 1) dealHand("forward");
+          else goToHand(targetHand);
+        } else if (targetHand === activeHand - 1) {
+          dealHand("backward");
+        } else {
+          goToHand(targetHand);
+        }
+        return;
+      }
+
+      // Fallback: original API pagination
+      if (!onPageChange || nextPage === currentPage) return;
+      if (nextPage < 1 || nextPage > totalPages) return;
+      onPageChange(nextPage);
+    },
+    [
+      loading,
+      isDealing,
+      singleRow,
+      hasStack,
+      activeHand,
+      dealHand,
+      goToHand,
+      onPageChange,
+      currentPage,
+      totalPages,
+    ]
   );
 
   const runRotation = useCallback(
     (direction, steps) => {
-      if (!hasStack || steps <= 0 || animating) return;
-
-      const reduceMotion =
-        typeof window !== "undefined" &&
-        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (!hasStack || steps <= 0 || animating || isDealing) return;
 
       const apply = (count) => {
         setDeck((prev) => {
@@ -307,7 +660,7 @@ const Grid = ({
         });
       };
 
-      if (reduceMotion) {
+      if (prefersReducedMotion()) {
         apply(steps);
         return;
       }
@@ -320,19 +673,13 @@ const Grid = ({
         animTimerRef.current = null;
       }, STEP_DURATION_MS);
     },
-    [hasStack, animating, slots]
-  );
-
-  useEffect(
-    () => () => {
-      if (animTimerRef.current) clearTimeout(animTimerRef.current);
-    },
-    []
+    [hasStack, animating, isDealing, slots]
   );
 
   const onPointerDown = useCallback(
     (event) => {
-      if (!hasStack || event.button != null && event.button !== 0) return;
+      if (!hasStack || isDealing || (event.button != null && event.button !== 0))
+        return;
       gestureRef.current = {
         pointerId: event.pointerId,
         startX: event.clientX,
@@ -344,38 +691,38 @@ const Grid = ({
       };
       suppressClickRef.current = false;
     },
-    [hasStack]
+    [hasStack, isDealing]
   );
 
-  const onPointerMove = useCallback(
-    (event) => {
-      const gesture = gestureRef.current;
-      if (!gesture || gesture.pointerId !== event.pointerId) return;
+  const onPointerMove = useCallback((event) => {
+    const gesture = gestureRef.current;
+    if (!gesture || gesture.pointerId !== event.pointerId) return;
 
-      const dx = event.clientX - gesture.startX;
-      const dy = event.clientY - gesture.startY;
+    const dx = event.clientX - gesture.startX;
+    const dy = event.clientY - gesture.startY;
 
-      if (!gesture.axis) {
-        if (Math.abs(dx) < DRAG_THRESHOLD_PX && Math.abs(dy) < DRAG_THRESHOLD_PX) {
-          return;
-        }
-        gesture.axis = Math.abs(dx) >= Math.abs(dy) ? "x" : "y";
-        if (gesture.axis === "x") {
-          event.currentTarget.setPointerCapture?.(event.pointerId);
-        }
+    if (!gesture.axis) {
+      if (
+        Math.abs(dx) < DRAG_THRESHOLD_PX &&
+        Math.abs(dy) < DRAG_THRESHOLD_PX
+      ) {
+        return;
       }
-
-      if (gesture.axis === "y") return;
-
-      event.preventDefault();
-      gesture.lastX = event.clientX;
-      if (Math.abs(dx) >= DRAG_THRESHOLD_PX) {
-        gesture.dragged = true;
-        suppressClickRef.current = true;
+      gesture.axis = Math.abs(dx) >= Math.abs(dy) ? "x" : "y";
+      if (gesture.axis === "x") {
+        event.currentTarget.setPointerCapture?.(event.pointerId);
       }
-    },
-    []
-  );
+    }
+
+    if (gesture.axis === "y") return;
+
+    event.preventDefault();
+    gesture.lastX = event.clientX;
+    if (Math.abs(dx) >= DRAG_THRESHOLD_PX) {
+      gesture.dragged = true;
+      suppressClickRef.current = true;
+    }
+  }, []);
 
   const finishGesture = useCallback(
     (event) => {
@@ -394,24 +741,27 @@ const Grid = ({
       gestureRef.current = null;
 
       if (!wasHorizontal) {
-        // Allow click; clear suppress on next tick if it was a tiny move
         if (!gesture.dragged) suppressClickRef.current = false;
         return;
       }
 
       const steps = stepsFromGesture(dx, dt);
       if (steps > 0) {
-        // Swipe left (negative dx) advances stack → first slot
         runRotation(dx < 0 ? "forward" : "backward", steps);
       }
 
-      // Keep clicks suppressed until after the click event from this gesture
       requestAnimationFrame(() => {
         suppressClickRef.current = false;
       });
     },
     [runRotation]
   );
+
+  const paginationLocked = loading || isDealing;
+  const showSkeleton = loading && deck.length === 0;
+  const uiPage = singleRow && hasStack ? activeHand + 1 : currentPage;
+  const uiTotal = singleRow && hasStack ? visiblePageCount : Math.min(totalPages, 4);
+  const uiMaxPage = singleRow && hasStack ? totalHands : totalPages;
 
   return (
     <div className="movies-container">
@@ -432,8 +782,8 @@ const Grid = ({
           <ul className="pagination">
             <li>
               <button
-                onClick={() => onPageChange(currentPage - 1)}
-                disabled={currentPage === 1 || loading}
+                onClick={() => beginPageChange(uiPage - 1)}
+                disabled={uiPage === 1 || paginationLocked}
                 className="pagination-button prev-next"
                 aria-label="Previous page"
               >
@@ -452,16 +802,13 @@ const Grid = ({
               </button>
             </li>
 
-            {Array.from(
-              { length: Math.min(totalPages, 4) },
-              (_, i) => i + 1
-            ).map((number) => (
+            {Array.from({ length: uiTotal }, (_, i) => i + 1).map((number) => (
               <li key={number}>
                 <button
-                  onClick={() => onPageChange(number)}
-                  disabled={loading}
+                  onClick={() => beginPageChange(number)}
+                  disabled={paginationLocked}
                   className={`pagination-button ${
-                    currentPage === number ? "active" : ""
+                    uiPage === number ? "active" : ""
                   }`}
                 >
                   {number}
@@ -471,8 +818,8 @@ const Grid = ({
 
             <li>
               <button
-                onClick={() => onPageChange(currentPage + 1)}
-                disabled={currentPage === totalPages || loading}
+                onClick={() => beginPageChange(uiPage + 1)}
+                disabled={uiPage >= uiMaxPage || paginationLocked}
                 className="pagination-button prev-next"
                 aria-label="Next page"
               >
@@ -494,7 +841,7 @@ const Grid = ({
         )}
       </div>
       <div className="movies-grid-measure" ref={measureRef}>
-        {loading ? (
+        {showSkeleton ? (
           singleRow ? (
             <MovieRowSkeleton count={skeletonCount} showStack />
           ) : (
@@ -511,6 +858,7 @@ const Grid = ({
               singleRow ? "movies-grid--single-row" : "",
               hasStack ? "movies-grid--album-carousel" : "",
               animating ? "movies-grid--rotating" : "",
+              isDealing ? "movies-grid--dealing" : "",
             ]
               .filter(Boolean)
               .join(" ")}
@@ -519,20 +867,31 @@ const Grid = ({
                 ? { "--items-per-row": gridItemCount }
                 : undefined
             }
-            onPointerDown={hasStack ? onPointerDown : undefined}
-            onPointerMove={hasStack ? onPointerMove : undefined}
-            onPointerUp={hasStack ? finishGesture : undefined}
-            onPointerCancel={hasStack ? finishGesture : undefined}
+            aria-busy={loading || isDealing}
+            onPointerDown={
+              hasStack && !isDealing ? onPointerDown : undefined
+            }
+            onPointerMove={
+              hasStack && !isDealing ? onPointerMove : undefined
+            }
+            onPointerUp={hasStack && !isDealing ? finishGesture : undefined}
+            onPointerCancel={
+              hasStack && !isDealing ? finishGesture : undefined
+            }
           >
-            {fullCards.map((item) => (
+            {fullCards.map((item, index) => (
               <MovieCard
                 key={item.id}
+                ref={(el) => {
+                  slotRefs.current[index] = el;
+                }}
                 item={item}
                 onItemClick={handleItemClick}
               />
             ))}
             {hasStack && (
               <AlbumStack
+                ref={stackRef}
                 items={stackCards}
                 overflowCount={overflowCount}
                 onFrontClick={handleItemClick}
@@ -541,6 +900,10 @@ const Grid = ({
           </div>
         )}
       </div>
+
+      {dealFlights?.map((flight) => (
+        <DealFlyer key={flight.key} flight={flight} />
+      ))}
     </div>
   );
 };
