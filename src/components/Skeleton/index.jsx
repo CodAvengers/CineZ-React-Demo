@@ -43,16 +43,41 @@ export function MovieCardSkeleton() {
   );
 }
 
-export function MovieRowSkeleton({ count = 6 }) {
+export function AlbumStackSkeleton() {
+  const depths = [7, 6, 5, 4, 3, 2, 1, 0];
+
+  return (
+    <div className="album-stack album-stack--skeleton" aria-hidden="true">
+      <div className="album-stack__layers">
+        {depths.map((depth) => (
+          <div
+            key={depth}
+            className="album-stack__layer"
+            style={{ "--stack-depth": depth }}
+          >
+            <div className="album-stack__poster">
+              <Skeleton className="skeleton--fill" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function MovieRowSkeleton({ count = 6, showStack = false }) {
+  const fullCount = showStack && count > 1 ? count - 1 : count;
+
   return (
     <div
       className="movies-grid movies-grid--single-row"
       style={{ "--items-per-row": count }}
       aria-busy="true"
     >
-      {Array.from({ length: count }, (_, i) => (
+      {Array.from({ length: fullCount }, (_, i) => (
         <MovieCardSkeleton key={i} />
       ))}
+      {showStack && count > 1 && <AlbumStackSkeleton />}
     </div>
   );
 }

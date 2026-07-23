@@ -3,6 +3,7 @@
   margin: 0 auto;
   color: #333;
   margin-bottom: 20px;
+  overflow: visible;
 }
 
 .section-header {
@@ -120,6 +121,7 @@
 
 .movies-grid-measure {
   width: 100%;
+  overflow: visible;
 }
 
 .movies-grid {
@@ -133,16 +135,228 @@
   grid-template-columns: repeat(var(--items-per-row, 1), minmax(0, 1fr));
 }
 
+.movies-grid--album-carousel {
+  touch-action: pan-y;
+  user-select: none;
+  overflow: visible;
+}
+
+.movies-grid--rotating .movie-card,
+.movies-grid--rotating .album-stack {
+  animation: album-carousel-settle 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Hide settled cards only while flyers are in motion */
+.movies-grid--deal-flying > .movie-card,
+.movies-grid--deal-flying > .album-stack {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Prevent stack layer CSS transitions from “refreshing” on handoff */
+.movies-grid--deal-flying .album-stack__layer {
+  transition: none !important;
+}
+
+.deal-flyer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 500;
+  pointer-events: none;
+  transform-origin: top left;
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+/* Slot flyers are real MovieCards in a moving shell — no second chrome */
+.deal-flyer--slot {
+  display: block;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+  border-radius: 0;
+}
+
+.deal-flyer--slot .movie-card {
+  width: 100%;
+  height: 100%;
+  cursor: default;
+}
+
+.deal-flyer--slot .movie-card:hover {
+  transform: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Stack flyers match album-stack layer chrome */
+.deal-flyer--stack {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #333;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+  background: #1a1a1a;
+}
+
+.deal-flyer__stack-layer {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.deal-flyer__stack-layer .album-stack__poster {
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes album-carousel-settle {
+  from {
+    opacity: 0.72;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .movies-grid--rotating .movie-card,
+  .movies-grid--rotating .album-stack {
+    animation: none;
+  }
+
+  .deal-flyer {
+    transition: none !important;
+  }
+}
+
 .movie-card {
   background: #1a1a1a;
   border-radius: 8px;
   overflow: hidden;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: box-shadow 0.2s;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border: 1px solid #333;
   width: 100%;
   min-width: 0;
+}
+
+/* Horizontal album stack — matches full movie-card height (poster + info) */
+.album-stack {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  align-self: stretch;
+  cursor: pointer;
+  outline: none;
+  border-radius: 8px;
+  overflow: visible;
+  z-index: 2;
+}
+
+.album-stack:focus-visible {
+  box-shadow: 0 0 0 2px #e55300;
+}
+
+.album-stack__layers {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.album-stack__layer {
+  --stack-step: 12px;
+  position: absolute;
+  inset: 0;
+  width: 92%;
+  left: 0;
+  right: auto;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #333;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+  background: #1a1a1a;
+  transform: translateX(calc(var(--stack-depth) * var(--stack-step)))
+    scale(calc(1 - var(--stack-depth) * 0.018));
+  transform-origin: left center;
+  opacity: calc(1 - var(--stack-depth) * 0.04);
+  /* No base transition — mount/handoff must not animate opacity/transform */
+  transition: none;
+  z-index: calc(20 - var(--stack-depth));
+}
+
+.album-stack:hover .album-stack__layer {
+  --stack-step: 16px;
+  transform: translateX(calc(var(--stack-depth) * var(--stack-step)))
+    scale(calc(1 - var(--stack-depth) * 0.014));
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.28s ease;
+}
+
+@media (max-width: 768px) {
+  .album-stack__layer {
+    --stack-step: 9px;
+    width: 90%;
+  }
+
+  .album-stack:hover .album-stack__layer {
+    --stack-step: 12px;
+  }
+}
+
+.album-stack__poster {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #1a1a1a;
+}
+
+.album-stack__poster img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.album-stack__poster .poster-placeholder {
+  border-radius: 8px;
+}
+
+.album-stack__badge {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  z-index: 20;
+  min-width: 28px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  pointer-events: none;
+}
+
+.album-stack--skeleton .album-stack__layer {
+  background: transparent;
+  box-shadow: none;
+  border-color: transparent;
+}
+
+.album-stack--skeleton .album-stack__badge {
+  display: none;
 }
 
 @media (max-width: 1366px) {
@@ -162,6 +376,7 @@
 
 .movie-card:hover {
   transform: translateY(-5px);
+  transition: transform 0.2s, box-shadow 0.2s;
   box-shadow: 0 5px 15px rgba(95, 95, 95, 0.348);
 }
 
@@ -173,6 +388,24 @@
   border-radius: 8px 8px 0 0;
 }
 
+/* Bleed info panel color up into the poster (banner / genre style) */
+.movie-poster::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 30%;
+  background: linear-gradient(
+    to top,
+    #1a1a1a 0%,
+    rgba(26, 26, 26, 0.72) 35%,
+    rgba(26, 26, 26, 0) 100%
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
 .movie-poster img {
   position: absolute;
   top: 0;
@@ -182,6 +415,7 @@
   object-fit: cover;
   transition: opacity 0.35s ease;
   border-radius: 8px 8px 0 0;
+  z-index: 0;
 }
 
 .movie-poster img.media-fade.is-loaded:hover {
@@ -204,18 +438,23 @@
 }
 
 .movie-info {
-  padding: 12px;
+  position: relative;
+  z-index: 1;
+  padding: 6px 10px 10px;
   background-color: #1a1a1a;
+  /* Soft handoff so the panel reads continuous with the poster fade */
+  margin-top: -1px;
 }
 
 .movie-title {
   font-weight: bold;
-  margin-top: 6px;
-  margin-bottom: 4px;
+  margin-top: 0;
+  margin-bottom: 2px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   color: #ffffff;
+  line-height: 1.25;
 }
 
 .movie-quality {
@@ -297,7 +536,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 8px;
+  margin-top: 4px;
 }
 
 .movie-rating {

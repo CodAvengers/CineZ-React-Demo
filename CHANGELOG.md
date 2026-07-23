@@ -6,6 +6,34 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [2026-07-23]
+
+### Added
+
+- Album-stack carousel for single-row grids: last slot is a stacked poster pile for overflow titles, with swipe/drag deck rotation for the visible hand
+- Solitaire-style pagination deal: stack cards fly into empty slots, then the next overflow stack slides in from off-screen (hand paging within the loaded list)
+- `DealFlyer` overlay for deal/refill flights, with poster preload and settle handoff so real cards replace flyers without a skeleton blink
+- Modular grid package under `src/components/grid/` (`Grid`, `MovieCard`, `AlbumStack`, `DealFlyer`, `GridPagination`) plus hooks (`useAlbumDeal`, `useDeckGesture`, `usePosterImage`) and `src/utils/grid/` (deck math, flight builders, helpers)
+- Multi-provider playback (`VidLink`, `2Embed`, `SuperEmbed`) with `usePlaybackProvider`, `ServerSwitcher`, and a versioned localStorage key for the selected server
+- Details shared hooks: `useMediaDetails`, `usePlaybackProvider`, `useTvSeasonEpisodes`
+- Details UI building blocks: `DetailsShell`, `DetailsHero`, `DetailsSection`, and shared forms styles (`forms.css`) with `UiSelect` for TV season/episode picks
+
+### Changed
+
+- Grid split out of a single large file into focused components, hooks, and utils; public import remains `components/grid`
+- Movie cards: poster→info gradient overlay, tighter info spacing, album stack height aligned to full card
+- Default playback provider set to **SuperEmbed**; provider labels clarified for 2Embed / VidLink
+- Movie/TV details layout rebuilt around the shell/hero/section structure; embed opens inline without a separate “open embed” control
+- Embed player iframe permissions broadened for nested provider embeds and legacy fullscreen attributes kept for compatibility
+- Skeleton loading for album-stack rows; hand changes no longer flash a full-row skeleton
+
+### Fixed
+
+- Deal handoff morph/blink when flyers settle into real cards (translate-only flights, one-frame sync handoff, cache-aware `useImageLoaded`)
+- Nested embed providers blocked by overly strict iframe `allow` / sandbox constraints
+
+---
+
 ## [2026-07-20]
 
 ### Added
