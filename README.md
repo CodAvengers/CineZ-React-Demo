@@ -1,4 +1,4 @@
-# oleDst CineZ React Demo
+# CineZ React Demo
 
 Frontend-only movie and TV browser: explore trending and popular titles, search, open details, and watch via embedded players. Metadata comes from [TMDB](https://www.themoviedb.org/documentation/api); playback uses [vidlink.pro](https://vidlink.pro).
 
