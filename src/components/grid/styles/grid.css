@@ -277,8 +277,8 @@
 }
 
 .album-stack__foot {
-  padding: 12px;
-  min-height: 58px;
+  padding: 6px 10px 10px;
+  min-height: 52px;
   box-sizing: border-box;
 }
 
@@ -351,18 +351,19 @@
 }
 
 .movie-info {
-  padding: 12px;
+  padding: 6px 10px 10px;
   background-color: #1a1a1a;
 }
 
 .movie-title {
   font-weight: bold;
-  margin-top: 6px;
-  margin-bottom: 4px;
+  margin-top: 0;
+  margin-bottom: 2px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   color: #ffffff;
+  line-height: 1.25;
 }
 
 .movie-quality {
@@ -444,7 +445,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 8px;
+  margin-top: 4px;
 }
 
 .movie-rating {
