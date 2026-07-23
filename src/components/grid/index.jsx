@@ -6,6 +6,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { flushSync } from "react-dom";
 import "./styles/grid.css";
 import StarHalfIcon from "@mui/icons-material/StarHalf";
 import { useNavigate } from "react-router-dom";
@@ -240,9 +241,8 @@ const AlbumStack = forwardRef(function AlbumStack(
   );
 });
 
-function DealFlyer({ flight, settling = false }) {
+function DealFlyer({ flight }) {
   const [onTable, setOnTable] = useState(false);
-  const url = posterUrlFor(flight.item);
   const isStack = flight.kind === "stack";
 
   useEffect(() => {
@@ -252,51 +252,33 @@ function DealFlyer({ flight, settling = false }) {
     return () => cancelAnimationFrame(id);
   }, []);
 
-  const titleText = flight.item.title || "";
-  const initials = titleText.substring(0, 2).toUpperCase() || "?";
-  const rating = flight.item.rating ?? 0;
-
-  const scaleX = flight.to.w / Math.max(flight.from.w, 1);
-  const scaleY = flight.to.h / Math.max(flight.from.h, 1);
+  // Destination box size only — translate into place (no scale morph)
+  const w = flight.to.w;
+  const h = flight.to.h;
 
   return (
     <div
-      className={`deal-flyer${isStack ? " deal-flyer--stack" : ""}${
+      className={`deal-flyer${isStack ? " deal-flyer--stack" : " deal-flyer--slot"}${
         onTable ? " is-dealt" : ""
-      }${settling ? " is-settling" : ""}`}
+      }`}
       style={{
-        width: flight.from.w,
-        height: flight.from.h,
+        width: w,
+        height: h,
         transform: onTable
-          ? `translate(${flight.to.x}px, ${flight.to.y}px) scale(${scaleX}, ${scaleY})`
+          ? `translate(${flight.to.x}px, ${flight.to.y}px)`
           : `translate(${flight.from.x}px, ${flight.from.y}px)`,
-        transitionDuration: settling
-          ? "100ms"
-          : `${flight.duration ?? DEAL_DURATION_MS}ms`,
-        transitionDelay: settling ? "0ms" : `${flight.delay}ms`,
+        transitionDuration: `${flight.duration ?? DEAL_DURATION_MS}ms`,
+        transitionDelay: `${flight.delay}ms`,
         zIndex: flight.zIndex,
       }}
       aria-hidden="true"
     >
-      <div className="deal-flyer__art">
-        {url ? (
-          <img src={url} alt="" draggable={false} />
-        ) : (
-          <div className="deal-flyer__placeholder">{initials}</div>
-        )}
-      </div>
-      {!isStack && (
-        <div className="deal-flyer__meta">
-          <div className="movie-title">{titleText}</div>
-          {rating > 0 && (
-            <div className="movie-meta">
-              <span className={`movie-rating ${getRatingClass(rating)}`}>
-                <StarHalfIcon style={{ fontSize: "14px" }} />
-                {rating.toFixed(1)}/10
-              </span>
-            </div>
-          )}
+      {isStack ? (
+        <div className="deal-flyer__stack-layer">
+          <StackPoster item={flight.item} />
         </div>
+      ) : (
+        <MovieCard item={flight.item} />
       )}
     </div>
   );
@@ -455,13 +437,12 @@ const Grid = ({
   const [handIndex, setHandIndex] = useState(0);
   const [animating, setAnimating] = useState(false);
   const [dealFlights, setDealFlights] = useState(null);
-  // flying = hide real grid; settling = real grid under flyers, then drop cover
+  // flying = hide real grid under translating MovieCard/stack clones
   const [dealPhase, setDealPhase] = useState(null);
   const suppressClickRef = useRef(false);
   const gestureRef = useRef(null);
   const animTimerRef = useRef(null);
   const dealTimerRef = useRef(null);
-  const settleTimerRef = useRef(null);
   const sourceSigRef = useRef(dataSignature(data));
   const slotRefs = useRef([]);
   const stackRef = useRef(null);
@@ -483,7 +464,6 @@ const Grid = ({
     () => () => {
       if (animTimerRef.current) clearTimeout(animTimerRef.current);
       if (dealTimerRef.current) clearTimeout(dealTimerRef.current);
-      if (settleTimerRef.current) clearTimeout(settleTimerRef.current);
     },
     []
   );
@@ -553,26 +533,23 @@ const Grid = ({
   const finishDeal = useCallback((nextDeck, nextHand) => {
     const visible = nextDeck.slice(0, slots + STACK_PREVIEW);
 
-    const reveal = () => {
-      // Commit the real row/stack while flyers still cover the same pixels
-      setDeck(nextDeck);
-      setHandIndex(nextHand);
-      setDealPhase("settling");
+    const handoff = () => {
+      // Paint real row/stack under cover (still opacity 0), then drop flyers
+      // and reveal in one frame — no crossfade morph between different layouts.
+      flushSync(() => {
+        setDeck(nextDeck);
+        setHandIndex(nextHand);
+      });
 
       requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          if (settleTimerRef.current) clearTimeout(settleTimerRef.current);
-          // Keep flyers one beat so decoded posters paint underneath, then lift cover
-          settleTimerRef.current = setTimeout(() => {
-            setDealFlights(null);
-            setDealPhase(null);
-            settleTimerRef.current = null;
-          }, 120);
+        flushSync(() => {
+          setDealFlights(null);
+          setDealPhase(null);
         });
       });
     };
 
-    preloadPosters(visible).then(reveal);
+    preloadPosters(visible).then(handoff);
   }, [slots]);
 
   const startDealFlights = useCallback((flights, nextDeck, nextHand) => {
@@ -988,7 +965,6 @@ const Grid = ({
               hasStack ? "movies-grid--album-carousel" : "",
               animating ? "movies-grid--rotating" : "",
               dealPhase === "flying" ? "movies-grid--deal-flying" : "",
-              dealPhase === "settling" ? "movies-grid--deal-settling" : "",
             ]
               .filter(Boolean)
               .join(" ")}
@@ -1032,11 +1008,7 @@ const Grid = ({
       </div>
 
       {dealFlights?.map((flight) => (
-        <DealFlyer
-          key={flight.key}
-          flight={flight}
-          settling={dealPhase === "settling"}
-        />
+        <DealFlyer key={flight.key} flight={flight} />
       ))}
     </div>
   );

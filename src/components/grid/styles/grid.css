@@ -153,19 +153,9 @@
   pointer-events: none;
 }
 
-/* Real cards are already under the flyers — no motion pop on reveal */
-.movies-grid--deal-settling .movie-card,
-.movies-grid--deal-settling .album-stack,
-.movies-grid--deal-settling .album-stack__layer {
+/* Prevent stack layer CSS transitions from “refreshing” on handoff */
+.movies-grid--deal-flying .album-stack__layer {
   transition: none !important;
-  animation: none !important;
-}
-
-.deal-flyer.is-settling {
-  opacity: 0;
-  transition-property: opacity;
-  transition-timing-function: linear;
-  pointer-events: none;
 }
 
 .deal-flyer {
@@ -173,13 +163,6 @@
   top: 0;
   left: 0;
   z-index: 500;
-  display: flex;
-  flex-direction: column;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid #333;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
-  background: #1a1a1a;
   pointer-events: none;
   transform-origin: top left;
   transition-property: transform;
@@ -187,74 +170,45 @@
   will-change: transform;
 }
 
-.deal-flyer__art {
-  position: relative;
-  flex: 1 1 auto;
-  min-height: 0;
-  background: #1a1a1a;
-}
-
-.deal-flyer__art::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 42%;
-  background: linear-gradient(
-    to top,
-    #1a1a1a 0%,
-    rgba(26, 26, 26, 0.72) 35%,
-    rgba(26, 26, 26, 0) 100%
-  );
-  pointer-events: none;
-  z-index: 1;
-}
-
-.deal-flyer img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+/* Slot flyers are real MovieCards in a moving shell — no second chrome */
+.deal-flyer--slot {
   display: block;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+  border-radius: 0;
 }
 
-.deal-flyer__placeholder {
+.deal-flyer--slot .movie-card {
   width: 100%;
   height: 100%;
-  display: grid;
-  place-items: center;
-  font-size: 28px;
-  font-weight: 700;
-  color: #999;
-  background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+  cursor: default;
 }
 
-.deal-flyer__meta {
-  position: relative;
-  z-index: 2;
-  flex: 0 0 auto;
-  padding: 6px 10px 10px;
+.deal-flyer--slot .movie-card:hover {
+  transform: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Stack flyers match album-stack layer chrome */
+.deal-flyer--stack {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #333;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
   background: #1a1a1a;
 }
 
-.deal-flyer__meta .movie-title {
-  margin: 0 0 2px;
-  font-size: 13px;
-  line-height: 1.25;
-}
-
-.deal-flyer--stack {
-  /* Poster-only — matches album stack layers, no title block */
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
-}
-
-.deal-flyer--stack .deal-flyer__art {
-  flex: 1 1 auto;
+.deal-flyer__stack-layer {
+  width: 100%;
   height: 100%;
+  position: relative;
 }
 
-.deal-flyer--stack .deal-flyer__art::after {
-  display: none;
+.deal-flyer__stack-layer .album-stack__poster {
+  width: 100%;
+  height: 100%;
 }
 
 @keyframes album-carousel-settle {
@@ -283,7 +237,7 @@
   background: #1a1a1a;
   border-radius: 8px;
   overflow: hidden;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: box-shadow 0.2s;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border: 1px solid #333;
@@ -333,8 +287,8 @@
     scale(calc(1 - var(--stack-depth) * 0.018));
   transform-origin: left center;
   opacity: calc(1 - var(--stack-depth) * 0.04);
-  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 0.28s ease, opacity 0.28s ease;
+  /* No base transition — mount/handoff must not animate opacity/transform */
+  transition: none;
   z-index: calc(20 - var(--stack-depth));
 }
 
@@ -342,6 +296,8 @@
   --stack-step: 16px;
   transform: translateX(calc(var(--stack-depth) * var(--stack-step)))
     scale(calc(1 - var(--stack-depth) * 0.014));
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.28s ease;
 }
 
 @media (max-width: 768px) {
@@ -420,6 +376,7 @@
 
 .movie-card:hover {
   transform: translateY(-5px);
+  transition: transform 0.2s, box-shadow 0.2s;
   box-shadow: 0 5px 15px rgba(95, 95, 95, 0.348);
 }
 
