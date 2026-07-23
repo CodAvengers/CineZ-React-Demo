@@ -240,9 +240,10 @@ const AlbumStack = forwardRef(function AlbumStack(
   );
 });
 
-function DealFlyer({ flight }) {
+function DealFlyer({ flight, settling = false }) {
   const [onTable, setOnTable] = useState(false);
   const url = posterUrlFor(flight.item);
+  const isStack = flight.kind === "stack";
 
   useEffect(() => {
     const id = requestAnimationFrame(() => {
@@ -260,15 +261,19 @@ function DealFlyer({ flight }) {
 
   return (
     <div
-      className={`deal-flyer${onTable ? " is-dealt" : ""}`}
+      className={`deal-flyer${isStack ? " deal-flyer--stack" : ""}${
+        onTable ? " is-dealt" : ""
+      }${settling ? " is-settling" : ""}`}
       style={{
         width: flight.from.w,
         height: flight.from.h,
         transform: onTable
           ? `translate(${flight.to.x}px, ${flight.to.y}px) scale(${scaleX}, ${scaleY})`
           : `translate(${flight.from.x}px, ${flight.from.y}px)`,
-        transitionDuration: `${DEAL_DURATION_MS}ms`,
-        transitionDelay: `${flight.delay}ms`,
+        transitionDuration: settling
+          ? "100ms"
+          : `${flight.duration ?? DEAL_DURATION_MS}ms`,
+        transitionDelay: settling ? "0ms" : `${flight.delay}ms`,
         zIndex: flight.zIndex,
       }}
       aria-hidden="true"
@@ -280,39 +285,53 @@ function DealFlyer({ flight }) {
           <div className="deal-flyer__placeholder">{initials}</div>
         )}
       </div>
-      <div className="deal-flyer__meta">
-        <div className="movie-title">{titleText}</div>
-        {rating > 0 && (
-          <div className="movie-meta">
-            <span className={`movie-rating ${getRatingClass(rating)}`}>
-              <StarHalfIcon style={{ fontSize: "14px" }} />
-              {rating.toFixed(1)}/10
-            </span>
-          </div>
-        )}
-      </div>
+      {!isStack && (
+        <div className="deal-flyer__meta">
+          <div className="movie-title">{titleText}</div>
+          {rating > 0 && (
+            <div className="movie-meta">
+              <span className={`movie-rating ${getRatingClass(rating)}`}>
+                <StarHalfIcon style={{ fontSize: "14px" }} />
+                {rating.toFixed(1)}/10
+              </span>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
 
-function buildHandDealFlights(dealItems, stackEl, slotEls) {
-  if (!stackEl || !dealItems.length) return [];
+function layerRect(stackEl, depth) {
+  const layer = stackEl.querySelector(`[data-stack-depth="${depth}"]`);
+  if (layer) return layer.getBoundingClientRect();
 
   const stackRect = stackEl.getBoundingClientRect();
+  const step = 12;
+  return {
+    left: stackRect.left + depth * step,
+    top: stackRect.top,
+    width: stackRect.width * 0.92,
+    height: stackRect.height,
+    right: stackRect.left + depth * step + stackRect.width * 0.92,
+    bottom: stackRect.bottom,
+  };
+}
+
+function buildHandDealFlights(dealItems, stackEl, slotEls) {
+  if (!stackEl || !dealItems.length) return [];
 
   return dealItems
     .map((item, index) => {
       const slotEl = slotEls[index];
       if (!slotEl) return null;
 
-      const layer =
-        stackEl.querySelector(`[data-stack-depth="${index}"]`) ||
-        stackEl.querySelector('[data-stack-depth="0"]');
-      const fromRect = (layer || stackEl).getBoundingClientRect();
+      const fromRect = layerRect(stackEl, index);
       const toRect = slotEl.getBoundingClientRect();
 
       return {
         key: `deal-${item.id}-${index}`,
+        kind: "slot",
         item,
         from: {
           x: fromRect.left,
@@ -327,10 +346,92 @@ function buildHandDealFlights(dealItems, stackEl, slotEls) {
           h: Math.max(toRect.height, 40),
         },
         delay: index * DEAL_STAGGER_MS,
-        zIndex: 500 - index,
+        zIndex: 600 - index,
+        duration: DEAL_DURATION_MS,
       };
     })
     .filter(Boolean);
+}
+
+/** Next album-stack hand slides in from off-screen while slots are dealt. */
+function buildStackRefillFlights(nextStackItems, stackEl, direction) {
+  if (!stackEl || !nextStackItems.length) return [];
+
+  const viewportW =
+    typeof window !== "undefined" ? window.innerWidth : 1200;
+
+  return nextStackItems.map((item, index) => {
+    const toRect = layerRect(stackEl, index);
+    const w = Math.max(toRect.width, 40);
+    const h = Math.max(toRect.height, 40);
+
+    // Forward: enter from the right (off-screen). Backward: from the left.
+    const fromX =
+      direction === "forward"
+        ? viewportW + 24 + index * 16
+        : -w - 24 - index * 16;
+
+    return {
+      key: `stack-in-${item.id}-${index}`,
+      kind: "stack",
+      item,
+      from: {
+        x: fromX,
+        y: toRect.top,
+        w,
+        h,
+      },
+      to: {
+        x: toRect.left,
+        y: toRect.top,
+        w,
+        h,
+      },
+      // Start slightly after cards leave the stack so the belt reads clearly
+      delay: 90 + index * 45,
+      zIndex: 350 - index,
+      duration: DEAL_DURATION_MS + 40,
+    };
+  });
+}
+
+function preloadPosters(items) {
+  if (typeof window === "undefined") return Promise.resolve();
+
+  return Promise.all(
+    items.map(
+      (item) =>
+        new Promise((resolve) => {
+          const url = posterUrlFor(item);
+          if (!url) {
+            resolve();
+            return;
+          }
+          const img = new Image();
+          let settled = false;
+          const done = () => {
+            if (settled) return;
+            settled = true;
+            resolve();
+          };
+          img.onload = done;
+          img.onerror = done;
+          img.src = url;
+          if (img.complete) done();
+        })
+    )
+  );
+}
+
+function mergeDealFlights(slotFlights, stackFlights) {
+  return [...slotFlights, ...stackFlights];
+}
+
+function flightBatchDuration(flights) {
+  if (!flights.length) return 0;
+  return Math.max(
+    ...flights.map((f) => (f.delay || 0) + (f.duration || DEAL_DURATION_MS))
+  );
 }
 
 const Grid = ({
@@ -354,15 +455,18 @@ const Grid = ({
   const [handIndex, setHandIndex] = useState(0);
   const [animating, setAnimating] = useState(false);
   const [dealFlights, setDealFlights] = useState(null);
+  // flying = hide real grid; settling = real grid under flyers, then drop cover
+  const [dealPhase, setDealPhase] = useState(null);
   const suppressClickRef = useRef(false);
   const gestureRef = useRef(null);
   const animTimerRef = useRef(null);
   const dealTimerRef = useRef(null);
+  const settleTimerRef = useRef(null);
   const sourceSigRef = useRef(dataSignature(data));
   const slotRefs = useRef([]);
   const stackRef = useRef(null);
 
-  const isDealing = Boolean(dealFlights?.length);
+  const isDealing = dealPhase != null || Boolean(dealFlights?.length);
 
   // Resync when parent fetches a new list (API page / refresh)
   useEffect(() => {
@@ -372,12 +476,14 @@ const Grid = ({
     setDeck(data);
     setHandIndex(0);
     setDealFlights(null);
+    setDealPhase(null);
   }, [data]);
 
   useEffect(
     () => () => {
       if (animTimerRef.current) clearTimeout(animTimerRef.current);
       if (dealTimerRef.current) clearTimeout(dealTimerRef.current);
+      if (settleTimerRef.current) clearTimeout(settleTimerRef.current);
     },
     []
   );
@@ -445,10 +551,44 @@ const Grid = ({
   );
 
   const finishDeal = useCallback((nextDeck, nextHand) => {
-    setDeck(nextDeck);
-    setHandIndex(nextHand);
-    setDealFlights(null);
-  }, []);
+    const visible = nextDeck.slice(0, slots + STACK_PREVIEW);
+
+    const reveal = () => {
+      // Commit the real row/stack while flyers still cover the same pixels
+      setDeck(nextDeck);
+      setHandIndex(nextHand);
+      setDealPhase("settling");
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (settleTimerRef.current) clearTimeout(settleTimerRef.current);
+          // Keep flyers one beat so decoded posters paint underneath, then lift cover
+          settleTimerRef.current = setTimeout(() => {
+            setDealFlights(null);
+            setDealPhase(null);
+            settleTimerRef.current = null;
+          }, 120);
+        });
+      });
+    };
+
+    preloadPosters(visible).then(reveal);
+  }, [slots]);
+
+  const startDealFlights = useCallback((flights, nextDeck, nextHand) => {
+    setDealPhase("flying");
+    setDealFlights(flights);
+
+    // Warm the destination posters while cards are in the air
+    preloadPosters(nextDeck.slice(0, slots + STACK_PREVIEW));
+
+    const totalMs = flightBatchDuration(flights) + 40;
+    if (dealTimerRef.current) clearTimeout(dealTimerRef.current);
+    dealTimerRef.current = setTimeout(() => {
+      finishDeal(nextDeck, nextHand);
+      dealTimerRef.current = null;
+    }, totalMs);
+  }, [slots, finishDeal]);
 
   /**
    * Solitaire hand deal: album stack cards 0..n fly into slots 0..n,
@@ -475,6 +615,8 @@ const Grid = ({
           ? deck.slice(slots, slots + slots)
           : nextDeck.slice(0, slots);
 
+      const nextStackItems = nextDeck.slice(slots, slots + STACK_PREVIEW);
+
       if (prefersReducedMotion()) {
         finishDeal(nextDeck, nextHand);
         return true;
@@ -488,33 +630,20 @@ const Grid = ({
         return true;
       }
 
-      // Forward: fly the current stack cards into the slots.
-      // Backward: fly from slots back isn't needed — deal upcoming hand from stack area
-      // using the cards that will land (measure stack layers as origin).
-      const flights = buildHandDealFlights(
-        direction === "forward" ? dealItems : dealItems,
+      const slotFlights = buildHandDealFlights(dealItems, stackEl, slotEls);
+      const stackFlights = buildStackRefillFlights(
+        nextStackItems,
         stackEl,
-        slotEls
+        direction
       );
+      const flights = mergeDealFlights(slotFlights, stackFlights);
 
-      if (!flights.length) {
+      if (!slotFlights.length) {
         finishDeal(nextDeck, nextHand);
         return true;
       }
 
-      setDealFlights(flights);
-
-      const totalMs =
-        DEAL_DURATION_MS +
-        Math.max(0, flights.length - 1) * DEAL_STAGGER_MS +
-        60;
-
-      if (dealTimerRef.current) clearTimeout(dealTimerRef.current);
-      dealTimerRef.current = setTimeout(() => {
-        finishDeal(nextDeck, nextHand);
-        dealTimerRef.current = null;
-      }, totalMs);
-
+      startDealFlights(flights, nextDeck, nextHand);
       return true;
     },
     [
@@ -526,6 +655,7 @@ const Grid = ({
       deck,
       slots,
       finishDeal,
+      startDealFlights,
     ]
   );
 
@@ -536,7 +666,6 @@ const Grid = ({
 
       const direction = hand > activeHand ? "forward" : "backward";
 
-      // Animate one step toward the target; further jumps snap after that deal
       if (Math.abs(hand - activeHand) === 1) {
         dealHand(direction);
         return;
@@ -575,22 +704,21 @@ const Grid = ({
         idx += step;
       }
 
-      const flights = buildHandDealFlights(dealItems, stackEl, slotEls);
-      if (!flights.length) {
+      const nextStackItems = next.slice(slots, slots + STACK_PREVIEW);
+      const slotFlights = buildHandDealFlights(dealItems, stackEl, slotEls);
+      const stackFlights = buildStackRefillFlights(
+        nextStackItems,
+        stackEl,
+        direction
+      );
+      const flights = mergeDealFlights(slotFlights, stackFlights);
+
+      if (!slotFlights.length) {
         finishDeal(next, hand);
         return;
       }
 
-      setDealFlights(flights);
-      const totalMs =
-        DEAL_DURATION_MS +
-        Math.max(0, flights.length - 1) * DEAL_STAGGER_MS +
-        60;
-      if (dealTimerRef.current) clearTimeout(dealTimerRef.current);
-      dealTimerRef.current = setTimeout(() => {
-        finishDeal(next, hand);
-        dealTimerRef.current = null;
-      }, totalMs);
+      startDealFlights(flights, next, hand);
     },
     [
       activeHand,
@@ -602,6 +730,7 @@ const Grid = ({
       deck,
       slots,
       finishDeal,
+      startDealFlights,
     ]
   );
 
@@ -858,7 +987,8 @@ const Grid = ({
               singleRow ? "movies-grid--single-row" : "",
               hasStack ? "movies-grid--album-carousel" : "",
               animating ? "movies-grid--rotating" : "",
-              isDealing ? "movies-grid--dealing" : "",
+              dealPhase === "flying" ? "movies-grid--deal-flying" : "",
+              dealPhase === "settling" ? "movies-grid--deal-settling" : "",
             ]
               .filter(Boolean)
               .join(" ")}
@@ -902,7 +1032,11 @@ const Grid = ({
       </div>
 
       {dealFlights?.map((flight) => (
-        <DealFlyer key={flight.key} flight={flight} />
+        <DealFlyer
+          key={flight.key}
+          flight={flight}
+          settling={dealPhase === "settling"}
+        />
       ))}
     </div>
   );

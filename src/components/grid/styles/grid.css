@@ -146,10 +146,25 @@
   animation: album-carousel-settle 240ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Hide settled cards while solitaire flyers travel stack → slots */
-.movies-grid--dealing > .movie-card,
-.movies-grid--dealing > .album-stack {
+/* Hide settled cards only while flyers are in motion */
+.movies-grid--deal-flying > .movie-card,
+.movies-grid--deal-flying > .album-stack {
   opacity: 0;
+  pointer-events: none;
+}
+
+/* Real cards are already under the flyers — no motion pop on reveal */
+.movies-grid--deal-settling .movie-card,
+.movies-grid--deal-settling .album-stack,
+.movies-grid--deal-settling .album-stack__layer {
+  transition: none !important;
+  animation: none !important;
+}
+
+.deal-flyer.is-settling {
+  opacity: 0;
+  transition-property: opacity;
+  transition-timing-function: linear;
   pointer-events: none;
 }
 
@@ -228,8 +243,18 @@
   line-height: 1.25;
 }
 
-.deal-flyer__meta .movie-meta {
-  margin-top: 4px;
+.deal-flyer--stack {
+  /* Poster-only — matches album stack layers, no title block */
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+}
+
+.deal-flyer--stack .deal-flyer__art {
+  flex: 1 1 auto;
+  height: 100%;
+}
+
+.deal-flyer--stack .deal-flyer__art::after {
+  display: none;
 }
 
 @keyframes album-carousel-settle {
