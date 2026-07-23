@@ -61,7 +61,6 @@ export function AlbumStackSkeleton() {
           </div>
         ))}
       </div>
-      <div className="album-stack__foot" />
     </div>
   );
 }

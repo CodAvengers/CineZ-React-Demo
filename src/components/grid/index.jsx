@@ -199,8 +199,6 @@ function AlbumStack({ items, overflowCount = 0, onFrontClick }) {
           </span>
         )}
       </div>
-      {/* Matches .movie-info height so the row stays aligned */}
-      <div className="album-stack__foot" aria-hidden="true" />
     </div>
   );
 }

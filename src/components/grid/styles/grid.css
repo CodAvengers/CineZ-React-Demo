@@ -176,11 +176,13 @@
   min-width: 0;
 }
 
-/* Horizontal album stack — last carousel slot; peeks spill past the viewport */
+/* Horizontal album stack — matches full movie-card height (poster + info) */
 .album-stack {
   position: relative;
   width: 100%;
   min-width: 0;
+  min-height: 0;
+  align-self: stretch;
   cursor: pointer;
   outline: none;
   border-radius: 8px;
@@ -193,9 +195,10 @@
 }
 
 .album-stack__layers {
-  position: relative;
+  position: absolute;
+  inset: 0;
   width: 100%;
-  aspect-ratio: 2 / 3;
+  height: 100%;
   overflow: visible;
 }
 
@@ -203,7 +206,6 @@
   --stack-step: 12px;
   position: absolute;
   inset: 0;
-  /* Slightly inset so peeks read as edges, not full cards */
   width: 92%;
   left: 0;
   right: auto;
@@ -274,12 +276,6 @@
   line-height: 1;
   text-align: center;
   pointer-events: none;
-}
-
-.album-stack__foot {
-  padding: 6px 10px 10px;
-  min-height: 52px;
-  box-sizing: border-box;
 }
 
 .album-stack--skeleton .album-stack__layer {
