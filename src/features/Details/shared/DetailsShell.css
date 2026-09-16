@@ -404,3 +404,9 @@
     max-height: 340px;
   }
 }
+.details-tagline {
+  font-style: italic;
+  color: var(--details-muted);
+  font-size: 0.95rem;
+  margin: -0.5rem 0 0 0;
+}

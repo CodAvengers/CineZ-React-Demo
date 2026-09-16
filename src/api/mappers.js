@@ -65,6 +65,11 @@ export function mapMovieDetails(data) {
       ?.name,
     budget: data.budget,
     revenue: data.revenue,
+    status: data.status,
+    originalLanguage: data.original_language?.toUpperCase(),
+    voteCount: data.vote_count,
+    productionCompanies: data.production_companies?.map((c) => c.name).join(", "),
+    tagline: data.tagline,
     embedUrl: movieEmbedUrl(data.id),
     cast: (data.credits?.cast || []).slice(0, 9).map(mapCastMember),
   };
@@ -88,6 +93,11 @@ export function mapTvDetails(data) {
     seasonCount: data.number_of_seasons,
     episodeCount: data.number_of_episodes,
     status: data.status,
+    originalLanguage: data.original_language?.toUpperCase(),
+    voteCount: data.vote_count,
+    productionCompanies: data.production_companies?.map((c) => c.name).join(", "),
+    networks: data.networks?.map((n) => n.name).join(", "),
+    tagline: data.tagline,
     seasons: seasons.map((season) => ({
       seasonNumber: season.season_number,
       name: season.name,

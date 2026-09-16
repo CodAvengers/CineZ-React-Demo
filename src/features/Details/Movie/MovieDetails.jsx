@@ -51,6 +51,21 @@ const MovieDetails = () => {
   }
 
   const extras = [];
+  if (movie.status) {
+    extras.push({ label: "Status", value: movie.status });
+  }
+  if (movie.originalLanguage) {
+    extras.push({ label: "Language", value: movie.originalLanguage });
+  }
+  if (movie.voteCount) {
+    extras.push({
+      label: "Votes",
+      value: movie.voteCount.toLocaleString(),
+    });
+  }
+  if (movie.productionCompanies) {
+    extras.push({ label: "Studio", value: movie.productionCompanies });
+  }
   if (movie.budget > 0) {
     extras.push({ label: "Budget", value: `$${movie.budget.toLocaleString()}` });
   }
@@ -60,7 +75,6 @@ const MovieDetails = () => {
       value: `$${movie.revenue.toLocaleString()}`,
     });
   }
-
   return (
     <DetailsShell backdropUrl={movie.backdropUrl} backdropAlt={movie.title}>
       <DetailsHero
@@ -93,6 +107,7 @@ const MovieDetails = () => {
         />
       </div>
 
+      {movie.tagline && <p className="details-tagline">"{movie.tagline}"</p>}
       <DetailsSection title="Overview">
         <p>{movie.overview || "No overview available."}</p>
       </DetailsSection>

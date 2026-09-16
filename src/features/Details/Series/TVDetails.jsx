@@ -72,6 +72,23 @@ const TVDetails = () => {
     .filter(Boolean)
     .join(" · ");
 
+  const extras = [];
+  if (series.status) {
+    extras.push({ label: "Status", value: series.status });
+  }
+  if (series.originalLanguage) {
+    extras.push({ label: "Language", value: series.originalLanguage });
+  }
+  if (series.voteCount) {
+    extras.push({ label: "Votes", value: series.voteCount.toLocaleString() });
+  }
+  if (series.networks) {
+    extras.push({ label: "Network", value: series.networks });
+  }
+  if (series.productionCompanies) {
+    extras.push({ label: "Studio", value: series.productionCompanies });
+  }
+
   return (
     <DetailsShell backdropUrl={series.backdropUrl} backdropAlt={series.title}>
       <DetailsHero
@@ -120,11 +137,24 @@ const TVDetails = () => {
       </div>
 
 
+      {series.tagline && <p className="details-tagline">"{series.tagline}"</p>}
+
       <DetailsSection title="Overview">
         <p>{series.overview || "No overview available."}</p>
       </DetailsSection>
 
       <CastList cast={cast} />
+
+      {extras.length > 0 && (
+        <ul className="details-extras">
+          {extras.map((item) => (
+            <li key={item.label}>
+              <strong>{item.label}</strong>
+              {item.value}
+            </li>
+          ))}
+        </ul>
+      )}
     </DetailsShell>
   );
 };
