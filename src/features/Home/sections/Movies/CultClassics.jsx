@@ -1,37 +1,23 @@
-import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Grid from "../../../../components/grid";
 import { getCultClassics } from "../../../../api";
+import { useSectionData } from "../../../../hooks/useSectionData";
 
 const CultClassics = () => {
-  const [movies, setMovies] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const { items } = await getCultClassics({ page });
-        setMovies(items);
-      } catch (error) {
-        console.error("Error fetching cult classics:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [page]);
+  const { data, loading, error, page, setPage, totalPages } = useSectionData(
+    (page) => getCultClassics({ page })
+  );
 
   return (
     <div className="section-container">
       <Grid
         title="Cult Classics"
-        data={movies}
+        data={data}
         loading={loading}
+        error={error}
         currentPage={page}
+        totalPages={totalPages}
         onPageChange={setPage}
         onItemClick={(movie) => navigate(`/movie/${movie.id}`)}
         showPagination={true}

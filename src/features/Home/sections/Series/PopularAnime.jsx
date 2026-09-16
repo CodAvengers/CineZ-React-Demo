@@ -1,38 +1,21 @@
-import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Grid from "../../../../components/grid";
 import { getPopularAnime } from "../../../../api";
+import { useSectionData } from "../../../../hooks/useSectionData";
 
 const PopularAnime = () => {
-  const [anime, setAnime] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const result = await getPopularAnime({ page });
-        setAnime(result.items);
-        setTotalPages(result.totalPages);
-      } catch (error) {
-        console.error("Error fetching popular anime:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [page]);
+  const { data, loading, error, page, setPage, totalPages } = useSectionData(
+    (page) => getPopularAnime({ page })
+  );
 
   return (
     <div className="section-container">
       <Grid
         title="Popular Anime"
-        data={anime}
+        data={data}
         loading={loading}
+        error={error}
         currentPage={page}
         totalPages={totalPages}
         onPageChange={setPage}

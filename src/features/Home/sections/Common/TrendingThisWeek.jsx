@@ -1,39 +1,29 @@
-import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Grid from "../../../../components/grid";
 import { getTrendingThisWeek } from "../../../../api";
+import { useSectionData } from "../../../../hooks/useSectionData";
 
 const TrendingThisWeek = () => {
-  const [trending, setTrending] = useState([]);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const { items } = await getTrendingThisWeek();
-        setTrending(items);
-      } catch (error) {
-        console.error("Error fetching trending content:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+  const { data, loading, error, page, setPage, totalPages } = useSectionData(
+    (page) => getTrendingThisWeek({ page })
+  );
 
   return (
     <div className="section-container">
       <Grid
         title="Trending This Week"
-        data={trending}
+        data={data}
         loading={loading}
+        error={error}
         onItemClick={(item) =>
           navigate(`/${item.mediaType === "movie" ? "movie" : "tv"}/${item.id}`)
         }
         mediaType="mixed"
+        currentPage={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
+        showPagination={true}
       />
     </div>
   );

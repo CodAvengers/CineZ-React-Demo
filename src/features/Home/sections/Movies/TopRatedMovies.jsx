@@ -1,43 +1,24 @@
-import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Grid from "../../../../components/grid";
 import { getTopRatedMovies } from "../../../../api";
+import { useSectionData } from "../../../../hooks/useSectionData";
 
 const TopRatedMovies = () => {
-  const [topRated, setTopRated] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [topRatedPage, setTopRatedPage] = useState(1);
-  const [totalTopRatedPages, setTotalTopRatedPages] = useState(1);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const { items, totalPages } = await getTopRatedMovies({
-          page: topRatedPage,
-        });
-        setTopRated(items);
-        setTotalTopRatedPages(totalPages);
-      } catch (error) {
-        console.error("Error fetching top rated movies:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [topRatedPage]);
+  const { data, loading, error, page, setPage, totalPages } = useSectionData(
+    (page) => getTopRatedMovies({ page })
+  );
 
   return (
     <div className="movies-container">
       <Grid
         title="Top Rated Movies"
-        data={topRated}
+        data={data}
         loading={loading}
-        currentPage={topRatedPage}
-        totalPages={totalTopRatedPages}
-        onPageChange={setTopRatedPage}
+        error={error}
+        currentPage={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
         onItemClick={(movie) => navigate(`/movie/${movie.id}`)}
         showPagination={true}
       />

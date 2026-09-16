@@ -21,6 +21,7 @@ import MovieCard from "./MovieCard";
 function Grid({
   data = [],
   loading = false,
+  error = null,
   currentPage = 1,
   totalPages = 1,
   onPageChange,
@@ -197,6 +198,11 @@ function Grid({
           />
         )}
       </div>
+      {error && deck.length === 0 ? (
+        <div className="grid-error">
+          <p>Error: {error}</p>
+        </div>
+      ):( 
 
       <div className="movies-grid-measure" ref={measureRef}>
         {showSkeleton ? (
@@ -256,6 +262,7 @@ function Grid({
           </div>
         )}
       </div>
+      )}
 
       {dealFlights?.map((flight) => (
         <DealFlyer key={flight.key} flight={flight} />

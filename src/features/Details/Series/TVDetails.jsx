@@ -94,16 +94,28 @@ const TVDetails = () => {
         }
       />
 
-      <div className="details-player-wrap">
-        <ServerSwitcher
-          providers={providers}
-          value={providerId}
-          onChange={setProviderId}
-        />
-        <EmbedPlayer
-          src={embedUrl}
-          frameKey={`${providerId}-${id}-${selectedSeason}-${selectedEpisode}`}
-          title={`${series.title} Player`}
+      <div className="details-player-row">
+        <div className="details-player-wrap">
+          <ServerSwitcher
+            providers={providers}
+            value={providerId}
+            onChange={setProviderId}
+          />
+          <EmbedPlayer
+            src={embedUrl}
+            frameKey={`${providerId}-${id}-${selectedSeason}-${selectedEpisode}`}
+            title={`${series.title} Player`}
+          />
+        </div>
+
+        <EpisodePanel
+          seasons={seasons}
+          selectedSeason={selectedSeason}
+          onSeasonChange={setSeasonOverride}
+          episodes={episodes}
+          selectedEpisode={selectedEpisode}
+          onEpisodeChange={setSelectedEpisode}
+          episode={selectedEpisodeData}
         />
       </div>
 

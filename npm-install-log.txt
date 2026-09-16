@@ -1,0 +1,73 @@
+npm verbose cli /home/louis-mariara/.nvm/versions/node/v20.18.3/bin/node /home/louis-mariara/.nvm/versions/node/v20.18.3/bin/npm
+npm info using npm@11.2.0
+npm info using node@v20.18.3
+npm verbose title npm install
+npm verbose argv "install" "--loglevel" "verbose"
+npm verbose logfile logs-max:10 dir:/home/louis-mariara/.npm/_logs/2026-09-10T13_13_25_446Z-
+npm verbose logfile /home/louis-mariara/.npm/_logs/2026-09-10T13_13_25_446Z-debug-0.log
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/fsevents
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@rollup/rollup-win32-x64-msvc
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@rollup/rollup-win32-ia32-msvc
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@rollup/rollup-win32-arm64-msvc
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@rollup/rollup-linux-s390x-gnu
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@rollup/rollup-linux-riscv64-musl
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@rollup/rollup-linux-riscv64-gnu
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@rollup/rollup-linux-powerpc64le-gnu
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@rollup/rollup-linux-loongarch64-gnu
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@rollup/rollup-linux-arm64-musl
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@rollup/rollup-linux-arm64-gnu
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@rollup/rollup-linux-arm-musleabihf
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@rollup/rollup-linux-arm-gnueabihf
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@rollup/rollup-freebsd-x64
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@rollup/rollup-freebsd-arm64
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@rollup/rollup-darwin-x64
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@rollup/rollup-darwin-arm64
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@rollup/rollup-android-arm64
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@rollup/rollup-android-arm-eabi
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@esbuild/win32-x64
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@esbuild/win32-ia32
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@esbuild/win32-arm64
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@esbuild/sunos-x64
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@esbuild/openbsd-x64
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@esbuild/openbsd-arm64
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@esbuild/netbsd-x64
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@esbuild/netbsd-arm64
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@esbuild/linux-s390x
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@esbuild/linux-riscv64
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@esbuild/linux-ppc64
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@esbuild/linux-mips64el
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@esbuild/linux-loong64
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@esbuild/linux-ia32
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@esbuild/linux-arm64
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@esbuild/linux-arm
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@esbuild/freebsd-x64
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@esbuild/freebsd-arm64
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@esbuild/darwin-x64
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@esbuild/darwin-arm64
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@esbuild/android-x64
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@esbuild/android-arm64
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@esbuild/android-arm
+npm verbose reify failed optional dependency /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest/node_modules/@esbuild/aix-ppc64
+npm verbose audit error FetchError: request to https://registry.npmjs.org/-/npm/v1/security/advisories/bulk failed, reason: read ETIMEDOUT
+npm verbose audit error     at ClientRequest.<anonymous> (/home/louis-mariara/.nvm/versions/node/v20.18.3/lib/node_modules/npm/node_modules/minipass-fetch/lib/index.js:130:14)
+npm verbose audit error     at ClientRequest.emit (node:events:518:28)
+npm verbose audit error     at emitErrorEvent (node:_http_client:101:11)
+npm verbose audit error     at _destroy (node:_http_client:884:9)
+npm verbose audit error     at onSocketNT (node:_http_client:904:5)
+npm verbose audit error     at process.processTicksAndRejections (node:internal/process/task_queues:83:21) {
+npm verbose audit error   code: 'ETIMEDOUT',
+npm verbose audit error   errno: 'ETIMEDOUT',
+npm verbose audit error   syscall: 'read',
+npm verbose audit error   type: 'system'
+npm verbose audit error }
+
+up to date in 16m
+
+46 packages are looking for funding
+  run `npm fund` for details
+npm verbose cwd /home/louis-mariara/Documents/cinez/CineZ-CodAvengers-Latest
+npm verbose os Linux 7.0.0-30-generic
+npm verbose node v20.18.3
+npm verbose npm  v11.2.0
+npm verbose exit 0
+npm info ok

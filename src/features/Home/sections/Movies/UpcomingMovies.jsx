@@ -1,27 +1,26 @@
-import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Grid from "../../../../components/grid";
 import { getUpcomingMovies } from "../../../../api";
+import { useSectionData } from "../../../../hooks/useSectionData";
 
 const UpcomingMovies = () => {
-  const [movies, setMovies] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchUpcoming = async () => {
-      try {
-        const { items } = await getUpcomingMovies();
-        setMovies(items);
-      } catch (err) {
-        console.error("Failed to fetch upcoming movies:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUpcoming();
-  }, []);
+  const navigate = useNavigate();
+  const { data, loading, error, page, setPage, totalPages } = useSectionData(
+    (page) => getUpcomingMovies({ page })
+  );
 
   return (
-    <Grid title="Coming Soon to Theaters" data={movies} loading={loading} />
+    <Grid
+      title="Coming Soon to Theaters"
+      data={data}
+      loading={loading}
+      error={error}
+      currentPage={page}
+      totalPages={totalPages}
+      onPageChange={setPage}
+      onItemClick={(movie) => navigate(`/movie/${movie.id}`)}
+      showPagination={true}
+    />
   );
 };
 

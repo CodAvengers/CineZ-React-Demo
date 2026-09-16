@@ -1,38 +1,21 @@
-import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Grid from "../../../../components/grid";
 import { getPopularAnimation } from "../../../../api";
+import { useSectionData } from "../../../../hooks/useSectionData";
 
 const PopularAnimation = () => {
-  const [animation, setAnimation] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const result = await getPopularAnimation({ page });
-        setAnimation(result.items);
-        setTotalPages(result.totalPages);
-      } catch (error) {
-        console.error("Error fetching animation:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [page]);
+  const { data, loading, error, page, setPage, totalPages } = useSectionData(
+    (page) => getPopularAnimation({ page })
+  );
 
   return (
     <div className="section-container">
       <Grid
         title="Popular Animation"
-        data={animation}
+        data={data}
         loading={loading}
+        error={error}
         currentPage={page}
         totalPages={totalPages}
         onPageChange={setPage}

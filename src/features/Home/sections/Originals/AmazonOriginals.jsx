@@ -1,31 +1,15 @@
-import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Grid from "../../../../components/grid";
 import { getPlatformMovies, getPlatformTv } from "../../../../api";
+import { useSectionData } from "../../../../hooks/useSectionData";
 
 const AmazonOriginals = ({ mediaType = "tv" }) => {
-  const [originals, setOriginals] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const fetcher =
-          mediaType === "movie" ? getPlatformMovies : getPlatformTv;
-        const { items } = await fetcher("amazon", { page });
-        setOriginals(items);
-      } catch (error) {
-        console.error("Error fetching Amazon originals:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [page, mediaType]);
+  const fetcher = mediaType === "movie" ? getPlatformMovies : getPlatformTv;
+  const { data, loading, error, page, setPage, totalPages } = useSectionData(
+    (page) => fetcher("amazon", { page }),
+    [mediaType]
+  );
 
   return (
     <div className="section-container">
@@ -33,10 +17,12 @@ const AmazonOriginals = ({ mediaType = "tv" }) => {
         title={`Amazon Originals (${
           mediaType === "movie" ? "Movies" : "TV Shows"
         })`}
-        data={originals}
+        data={data}
         loading={loading}
+        error={error}
         onItemClick={(item) => navigate(`/${mediaType}/${item.id}`)}
         currentPage={page}
+        totalPages={totalPages}
         onPageChange={setPage}
         showPagination={true}
         mediaType={mediaType}

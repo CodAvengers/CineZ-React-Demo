@@ -1,44 +1,26 @@
-import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Grid from "../../../../components/grid";
 import { getTrendingTv } from "../../../../api";
+import { useSectionData } from "../../../../hooks/useSectionData";
 
 const TrendingSeries = () => {
-  const [trending, setTrending] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [trendingPage, setTrendingPage] = useState(1);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const { items } = await getTrendingTv({
-          page: trendingPage,
-          window: "week",
-        });
-        setTrending(items);
-      } catch (error) {
-        console.error("Error fetching trending series:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [trendingPage]);
+  const { data, loading, error, page, setPage, totalPages } = useSectionData(
+    (page) => getTrendingTv({ page, window: "week" })
+  );
 
   return (
     <div className="series-container">
       <Grid
         title="Trending Series"
-        data={trending}
+        data={data}
         loading={loading}
-        currentPage={trendingPage}
-        totalPages={1}
-        onPageChange={setTrendingPage}
+        error={error}
+        currentPage={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
         onItemClick={(series) => navigate(`/tv/${series.id}`)}
-        showPagination={false}
+        showPagination={true}
         mediaType="tv"
       />
     </div>

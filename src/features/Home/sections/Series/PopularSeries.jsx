@@ -1,43 +1,24 @@
-import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Grid from "../../../../components/grid";
 import { getPopularTv } from "../../../../api";
+import { useSectionData } from "../../../../hooks/useSectionData";
 
 const PopularSeries = () => {
-  const [popular, setPopular] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [popularPage, setPopularPage] = useState(1);
-  const [totalPopularPages, setTotalPopularPages] = useState(1);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const { items, totalPages } = await getPopularTv({
-          page: popularPage,
-        });
-        setPopular(items);
-        setTotalPopularPages(totalPages);
-      } catch (error) {
-        console.error("Error fetching popular series:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [popularPage]);
+  const { data, loading, error, page, setPage, totalPages } = useSectionData(
+    (page) => getPopularTv({ page })
+  );
 
   return (
     <div className="series-container">
       <Grid
         title="Popular Series"
-        data={popular}
+        data={data}
         loading={loading}
-        currentPage={popularPage}
-        totalPages={totalPopularPages}
-        onPageChange={setPopularPage}
+        error={error}
+        currentPage={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
         onItemClick={(series) => navigate(`/tv/${series.id}`)}
         showPagination={true}
         mediaType="tv"

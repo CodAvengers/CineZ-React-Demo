@@ -1,45 +1,26 @@
-import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Grid from "../../../../components/grid";
 import { getTrendingMovies } from "../../../../api";
+import { useSectionData } from "../../../../hooks/useSectionData";
 
 const TrendingMovies = () => {
-  const [trending, setTrending] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [trendingPage, setTrendingPage] = useState(1);
-  const [totalTrendingPages, setTotalTrendingPages] = useState(1);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const { items, totalPages } = await getTrendingMovies({
-          page: trendingPage,
-        });
-        setTrending(items);
-        setTotalTrendingPages(totalPages);
-      } catch (error) {
-        console.error("Error fetching trending movies:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [trendingPage]);
+  const { data, loading, error, page, setPage, totalPages } = useSectionData(
+    (page) => getTrendingMovies({ page })
+  );
 
   return (
     <div className="movies-container">
       <Grid
         title="Trending Movies"
-        data={trending}
+        data={data}
         loading={loading}
-        currentPage={trendingPage}
-        totalPages={totalTrendingPages}
-        onPageChange={setTrendingPage}
+        error={error}
+        currentPage={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
         onItemClick={(movie) => navigate(`/movie/${movie.id}`)}
-        showPagination={false}
+        showPagination={true}
       />
     </div>
   );
