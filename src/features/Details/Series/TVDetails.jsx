@@ -119,15 +119,6 @@ const TVDetails = () => {
         />
       </div>
 
-      <EpisodePanel
-        seasons={seasons}
-        selectedSeason={selectedSeason}
-        onSeasonChange={setSeasonOverride}
-        episodes={episodes}
-        selectedEpisode={selectedEpisode}
-        onEpisodeChange={setSelectedEpisode}
-        episode={selectedEpisodeData}
-      />
 
       <DetailsSection title="Overview">
         <p>{series.overview || "No overview available."}</p>
